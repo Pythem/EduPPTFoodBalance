@@ -1,0 +1,1111 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食物要多样：营养均衡的搭配智慧</title>
+    <link rel="stylesheet" href="https://ossv2.jbangai.com/libs/web/1.0/jb-slide-1.0.0.css" />
+    <script src="https://ossv2.jbangai.com/libs/web/1.0/jb-slide-1.0.0.min.js"></script>
+    <style>
+        :root {
+            --primary-accent: #10b981;
+            --secondary-accent: #f59e0b;
+            --coral-red: #ef4444;
+            --soft-purple: #8b5cf6;
+            --dark-navy: #09131f;
+            --card-bg: rgba(16, 28, 48, 0.85);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            font-family: var(--font-family);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        page {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            background: radial-gradient(circle at 50% 30%, #172a46 0%, #0a1322 70%, #050b14 100%);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 动态氛围背景粒子 */
+        .ambient-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.28;
+            pointer-events: none;
+            animation: pulse-glow 8s ease-in-out infinite alternate;
+        }
+        .glow-1 { width: 460px; height: 460px; background: #10b981; top: -100px; left: -80px; }
+        .glow-2 { width: 500px; height: 500px; background: #f59e0b; bottom: -120px; right: -80px; animation-delay: -4s; }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.2; }
+            100% { transform: scale(1.15) translate(20px, 15px); opacity: 0.35; }
+        }
+
+        /* 舞台区 */
+        .scene-container {
+            flex: 1;
+            position: relative;
+            width: 1280px;
+            height: 620px;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .scene {
+            position: absolute;
+            inset: 0;
+            width: 1280px;
+            height: 620px;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.98) translateY(8px);
+            transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 60px 10px;
+        }
+
+        .scene.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+        }
+
+        /* 顶部小标题胶囊 */
+        .badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 30px;
+            color: #34d399;
+            font-size: 14px;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .scene-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        /* 交互控制层 */
+        .controls-wrapper {
+            width: 1280px;
+            height: 100px;
+            background: linear-gradient(180deg, rgba(8, 14, 26, 0.82) 0%, rgba(5, 9, 17, 0.98) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8px 36px 14px;
+            z-index: 100;
+            flex-shrink: 0;
+            backdrop-filter: blur(12px);
+        }
+
+        .subtitle-area {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+
+        .subtitle-text {
+            font-size: 25px;
+            font-weight: 600;
+            color: #f1f5f9;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease-out;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 1200px;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            height: 36px;
+        }
+
+        .play-btn {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+            color: #ffffff;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 22px rgba(16, 185, 129, 0.6);
+        }
+
+        .progress-box {
+            flex: 1;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #f59e0b);
+            border-radius: 3px;
+            transition: width 0.08s linear;
+        }
+
+        .time-label {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: #94a3b8;
+            min-width: 110px;
+            text-align: right;
+            user-select: none;
+        }
+
+        /* 场景视觉模块公共动画与排版 */
+        .flex-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            width: 100%;
+        }
+
+        .hero-circle {
+            animation: rotate-plate 24s linear infinite;
+        }
+        @keyframes rotate-plate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .floating {
+            animation: floating-anim 4s ease-in-out infinite alternate;
+        }
+        @keyframes floating-anim {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-10px); }
+        }
+
+        .pulse-subtle {
+            animation: subtle-pulse 3s ease-in-out infinite alternate;
+        }
+        @keyframes subtle-pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.04); }
+        }
+
+        /* 场景1：引言与疑问 */
+        .intro-box {
+            display: flex;
+            align-items: center;
+            gap: 48px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 34px 50px;
+            border-radius: 20px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+        }
+
+        /* 场景2：数字指标卡片 */
+        .number-cards {
+            display: flex;
+            gap: 24px;
+            margin-top: 10px;
+        }
+        .num-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 24px 30px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .num-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #38bdf8);
+        }
+        .num-card.alert::before {
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+        }
+
+        /* 场景3：六大类六边形网格 */
+        .hex-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 1080px;
+        }
+        .group-card {
+            background: rgba(16, 28, 50, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+        .group-card.highlight {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.18);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+            transform: translateY(-3px);
+        }
+
+        /* 场景4：互补公式 */
+        .complement-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 1040px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 30px 45px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+        }
+
+        /* 场景5与6：复刻课本插图的SVG容器 */
+        .diagram-container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            width: 1100px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 24px 36px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+        }
+
+        /* 场景7：课本自评表 */
+        .interactive-table {
+            width: 1000px;
+            background: rgba(13, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+        }
+        .table-head {
+            display: grid;
+            grid-template-columns: 200px 1fr 180px;
+            background: rgba(16, 185, 129, 0.2);
+            padding: 12px 20px;
+            font-weight: 700;
+            color: #34d399;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .table-row {
+            display: grid;
+            grid-template-columns: 200px 1fr 180px;
+            padding: 16px 20px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 16px;
+            color: #e2e8f0;
+        }
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .check-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0 auto;
+            animation: bounce-in 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+        }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1.5px solid #10b981; }
+
+        @keyframes bounce-in {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 场景8：彩虹餐盘与总结 */
+        .plate-summary-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 50px;
+            width: 1080px;
+        }
+    </style>
+</head>
+<body>
+    <page id="main-canvas">
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
+
+        <!-- 场景容器：由 SCENE_DATA 精准调度 -->
+        <div class="scene-container" id="sceneContainer">
+
+            <!-- 场景 1: 开篇导入 (0 - 17.0s) -->
+            <div class="scene scene-1 active">
+                <!-- <div class="badge-tag">科学营养第一课</div> -->
+                <h1 class="scene-title">食物要多样：营养均衡的搭配智慧</h1>
+                <div class="intro-box floating">
+                    <!-- 动态天平SVG -->
+                    <svg width="220" height="200" viewBox="0 0 220 200">
+                        <defs>
+                            <linearGradient id="grad-gold" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#fbbf24"/>
+                                <stop offset="100%" stop-color="#d97706"/>
+                            </linearGradient>
+                            <linearGradient id="grad-green" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#34d399"/>
+                                <stop offset="100%" stop-color="#059669"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- 底座与立柱 -->
+                        <path d="M70 185 L150 185 L130 170 L90 170 Z" fill="#475569"/>
+                        <rect x="106" y="50" width="8" height="120" rx="4" fill="#64748b"/>
+                        <circle cx="110" cy="50" r="10" fill="url(#grad-gold)"/>
+                        <!-- 摆动横梁 -->
+                        <g style="transform-origin: 110px 50px; animation: balance-swing 5s ease-in-out infinite alternate;">
+                            <rect x="25" y="47" width="170" height="6" rx="3" fill="url(#grad-gold)"/>
+                            <!-- 左托盘：单一高堆 (沉重失衡) -->
+                            <line x1="45" y1="52" x2="25" y2="105" stroke="#cbd5e1" stroke-width="2"/>
+                            <line x1="45" y1="52" x2="65" y2="105" stroke="#cbd5e1" stroke-width="2"/>
+                            <path d="M15 105 Q45 125 75 105 Z" fill="#334155"/>
+                            <circle cx="45" cy="92" r="14" fill="#e2e8f0"/>
+                            <circle cx="40" cy="80" r="10" fill="#cbd5e1"/>
+                            <!-- 右托盘：丰富多样 (轻盈饱满) -->
+                            <line x1="175" y1="52" x2="155" y2="90" stroke="#cbd5e1" stroke-width="2"/>
+                            <line x1="175" y1="52" x2="195" y2="90" stroke="#cbd5e1" stroke-width="2"/>
+                            <path d="M145 90 Q175 110 205 90 Z" fill="#334155"/>
+                            <circle cx="165" cy="80" r="8" fill="#ef4444"/>
+                            <circle cx="185" cy="78" r="9" fill="#10b981"/>
+                            <circle cx="175" cy="70" r="7" fill="#f59e0b"/>
+                            <circle cx="172" cy="84" r="8" fill="#8b5cf6"/>
+                        </g>
+                    </svg>
+                    <div style="max-width: 520px;">
+                        <h2 style="font-size: 26px; color: #38bdf8; margin-bottom: 12px;">“明明吃得不少，为什么还缺营养？”</h2>
+                        <p style="font-size: 17px; line-height: 1.6; color: #cbd5e1; margin-bottom: 16px;">
+                            许多人认为多吃就等于健康，然而单一的过量摄入不仅无法满足人体的全方位需求，还会造成营养结构失衡。
+                        </p>
+                        <div style="display: flex; gap: 12px;">
+                            <span style="background: rgba(245, 158, 11, 0.18); border: 1px solid #f59e0b; color: #fbbf24; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 15px;">核心解法：多 样 化</span>
+                            <span style="background: rgba(16, 185, 129, 0.18); border: 1px solid #10b981; color: #34d399; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 15px;">关键指标：种类与搭配</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 场景 2: 核心指标 12与25种 vs 单一误区 (17.0 - 33.8s) -->
+            <div class="scene scene-2">
+                <div class="badge-tag">中国居民膳食指南准则</div>
+                <h1 class="scene-title">营养天平的基石：食物多样性指标</h1>
+                <div class="number-cards">
+                    <div class="num-card">
+                        <div style="font-size: 15px; color: #94a3b8; margin-bottom: 6px;">每日最低推荐种类</div>
+                        <div style="font-size: 52px; font-weight: 800; color: #10b981; margin: 4px 0; letter-spacing: -1px;">
+                            ≥12 <span style="font-size: 20px; font-weight: 500;">种/天</span>
+                        </div>
+                        <p style="font-size: 14px; color: #cbd5e1; line-height: 1.4;">覆盖主食、蔬菜、水果、蛋奶等多门类</p>
+                    </div>
+
+                    <div class="num-card">
+                        <div style="font-size: 15px; color: #94a3b8; margin-bottom: 6px;">每周最低推荐种类</div>
+                        <div style="font-size: 52px; font-weight: 800; color: #38bdf8; margin: 4px 0; letter-spacing: -1px;">
+                            ≥25 <span style="font-size: 20px; font-weight: 500;">种/周</span>
+                        </div>
+                        <p style="font-size: 14px; color: #cbd5e1; line-height: 1.4;">跨品类轮替，构筑稳固健康的防线</p>
+                    </div>
+
+                    <div class="num-card alert">
+                        <div style="font-size: 15px; color: #f87171; margin-bottom: 6px;">避开单一认知误区</div>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin: 10px 0;">
+                            <!-- 3碗米饭SVG -->
+                            <svg width="140" height="42" viewBox="0 0 140 42">
+                                <g fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5">
+                                    <path d="M6 24 Q22 40 38 24 Z"/>
+                                    <path d="M51 24 Q67 40 83 24 Z"/>
+                                    <path d="M96 24 Q112 40 128 24 Z"/>
+                                </g>
+                                <circle cx="22" cy="18" r="10" fill="#f8fafc"/>
+                                <circle cx="67" cy="18" r="10" fill="#f8fafc"/>
+                                <circle cx="112" cy="18" r="10" fill="#f8fafc"/>
+                            </svg>
+                        </div>
+                        <p style="font-size: 14px; color: #fca5a5; line-height: 1.4;">吃3碗米饭仍仅算 <strong>1 种</strong> 食物 (都是大米)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 场景 3: 营养天团六大成员 (33.8 - 69.0s) -->
+            <div class="scene scene-3">
+                <div class="badge-tag">营养天团不可分割</div>
+                <h1 class="scene-title">六大类食物：各司其职，谁也替代不了谁</h1>
+                <div class="hex-grid">
+                    <!-- 谷薯类 -->
+                    <div class="group-card highlight">
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="22" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" stroke-width="1.5"/>
+                            <path d="M16 32 C16 20 28 16 32 16 C32 28 28 32 16 32 Z" fill="#fbbf24"/>
+                            <line x1="20" y1="28" x2="28" y2="20" stroke="#78350f" stroke-width="2"/>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 700; color: #f59e0b; font-size: 16px;">1. 谷薯类</div>
+                            <div style="font-size: 13px; color: #cbd5e1;">提供碳水化合物 · 身体动力燃料</div>
+                        </div>
+                    </div>
+
+                    <!-- 蔬菜水果类 -->
+                    <div class="group-card highlight">
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="22" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="1.5"/>
+                            <circle cx="22" cy="26" r="10" fill="#10b981"/>
+                            <path d="M22 16 Q26 12 30 14 Q28 18 24 18" fill="#047857"/>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 700; color: #34d399; font-size: 16px;">2. 蔬菜水果类</div>
+                            <div style="font-size: 13px; color: #cbd5e1;">丰富维生素、矿物质、膳食纤维</div>
+                        </div>
+                    </div>
+
+                    <!-- 鱼禽肉蛋类 -->
+                    <div class="group-card highlight">
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="22" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" stroke-width="1.5"/>
+                            <path d="M14 26 C18 18 30 18 34 26 C30 30 18 30 14 26 Z" fill="#f87171"/>
+                            <polygon points="34,26 39,22 39,30" fill="#ef4444"/>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 700; color: #f87171; font-size: 16px;">3. 鱼禽肉蛋类</div>
+                            <div style="font-size: 13px; color: #cbd5e1;">优质蛋白质 · 活性铁与锌元素</div>
+                        </div>
+                    </div>
+
+                    <!-- 奶类 -->
+                    <div class="group-card highlight">
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="22" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="1.5"/>
+                            <rect x="18" y="16" width="12" height="18" rx="3" fill="#e0f2fe"/>
+                            <path d="M20 16 L22 12 L26 12 L28 16 Z" fill="#38bdf8"/>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 700; color: #38bdf8; font-size: 16px;">4. 奶类</div>
+                            <div style="font-size: 13px; color: #cbd5e1;">高效补钙之王 · 骨骼坚韧基石</div>
+                        </div>
+                    </div>
+
+                    <!-- 大豆类 -->
+                    <div class="group-card highlight">
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="22" fill="rgba(245, 158, 11, 0.2)" stroke="#eab308" stroke-width="1.5"/>
+                            <ellipse cx="20" cy="22" rx="7" ry="5" fill="#facc15" transform="rotate(-20 20 22)"/>
+                            <ellipse cx="28" cy="26" rx="7" ry="5" fill="#ca8a04" transform="rotate(30 28 26)"/>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 700; color: #facc15; font-size: 16px;">5. 豆类</div>
+                            <div style="font-size: 13px; color: #cbd5e1;">优质植物蛋白 · 赖氨酸极为丰富</div>
+                        </div>
+                    </div>
+
+                    <!-- 坚果类 -->
+                    <div class="group-card highlight">
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="22" fill="rgba(168, 85, 247, 0.2)" stroke="#a855f7" stroke-width="1.5"/>
+                            <path d="M24 14 C16 18 15 28 24 34 C33 28 32 18 24 14 Z" fill="#c084fc"/>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 700; color: #c084fc; font-size: 16px;">6. 坚果类</div>
+                            <div style="font-size: 13px; color: #cbd5e1;">健康不饱和脂肪酸 · 必需微量元素</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 场景 4: 变换法则与蛋白质互补原理 (69.0 - 110.0s) -->
+            <div class="scene scene-4">
+                <div class="badge-tag">进阶法则：常变换与巧互补</div>
+                <h1 class="scene-title">同类常换吃 · 蛋白质互补增效</h1>
+                <div class="complement-box">
+                    <!-- 左侧：大米 (赖氨酸偏少) -->
+                    <div style="text-align: center; width: 260px;">
+                        <svg width="120" height="90" viewBox="0 0 120 90">
+                            <ellipse cx="60" cy="65" rx="45" ry="18" fill="#1e293b"/>
+                            <ellipse cx="60" cy="55" rx="35" ry="12" fill="#f8fafc"/>
+                            <circle cx="50" cy="50" r="4" fill="#cbd5e1"/>
+                            <circle cx="70" cy="52" r="4" fill="#cbd5e1"/>
+                        </svg>
+                        <h3 style="color: #f1f5f9; font-size: 20px; margin-top: 6px;">大米蛋白质</h3>
+                        <div style="margin-top: 6px; padding: 6px 12px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; color: #fca5a5; font-size: 13px;">
+                            赖氨酸偏少 ⚠️
+                        </div>
+                    </div>
+
+                    <!-- 中间：加号与互补融合指示 -->
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div style="font-size: 38px; color: #34d399; font-weight: 900; margin-bottom: 8px;">＋</div>
+                        <div style="background: linear-gradient(90deg, #10b981, #059669); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; letter-spacing: 1px;">
+                            蛋白质互补效应
+                        </div>
+                        <svg width="120" height="30" viewBox="0 0 120 30" style="margin-top: 8px;">
+                            <line x1="10" y1="15" x2="110" y2="15" stroke="#34d399" stroke-width="3" stroke-dasharray="6,4"/>
+                            <polygon points="105,10 115,15 105,20" fill="#34d399"/>
+                        </svg>
+                    </div>
+
+                    <!-- 右侧：豆类 (富含赖氨酸) -->
+                    <div style="text-align: center; width: 260px;">
+                        <svg width="120" height="90" viewBox="0 0 120 90">
+                            <ellipse cx="60" cy="65" rx="45" ry="18" fill="#1e293b"/>
+                            <circle cx="48" cy="52" r="10" fill="#facc15"/>
+                            <circle cx="72" cy="52" r="10" fill="#1e293b" stroke="#64748b"/>
+                            <circle cx="60" cy="42" r="9" fill="#eab308"/>
+                        </svg>
+                        <h3 style="color: #f1f5f9; font-size: 20px; margin-top: 6px;">大豆 / 杂豆</h3>
+                        <div style="margin-top: 6px; padding: 6px 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; color: #6ee7b7; font-size: 13px;">
+                            富含赖氨酸 ✨
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; font-size: 16px; color: #94a3b8; letter-spacing: 0.5px;">
+                    米饭与豆类同煮，氨基酸长短互补，使得<strong>人体蛋白质吸收利用率显著跃升！</strong>
+                </div>
+            </div>
+
+            <!-- 场景 5: 课本插图矢量还原 1：粗粮和细粮搭配 (110.0 - 138.8s) -->
+            <div class="scene scene-5">
+                <div class="badge-tag">教材经典插图一比一矢量还原</div>
+                <h1 class="scene-title">经典搭配一：粗粮与细粮搭配</h1>
+                <div class="diagram-container">
+                    <!-- 课本图1矢量化：木质底盘上，一半白米，一半黑豆黄豆的太极杂粮碗 -->
+                    <svg width="340" height="340" viewBox="0 0 340 340" class="pulse-subtle">
+                        <defs>
+                            <!-- 木纹背景质感 -->
+                            <linearGradient id="wood-bg" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#2c1810"/>
+                                <stop offset="50%" stop-color="#3d2314"/>
+                                <stop offset="100%" stop-color="#1f0f08"/>
+                            </linearGradient>
+                            <radialGradient id="ceramic-bowl" cx="50%" cy="50%" r="50%">
+                                <stop offset="70%" stop-color="#1e293b"/>
+                                <stop offset="100%" stop-color="#0f172a"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- 木纹底板 -->
+                        <rect x="15" y="15" width="310" height="310" rx="24" fill="url(#wood-bg)" stroke="#52311f" stroke-width="4"/>
+                        <!-- 碗体外边框阴影 -->
+                        <circle cx="170" cy="170" r="126" fill="rgba(0,0,0,0.6)"/>
+                        <circle cx="170" cy="170" r="120" fill="url(#ceramic-bowl)" stroke="#e2e8f0" stroke-width="4"/>
+                        
+                        <!-- 碗内左半侧：洁白的大米 (细粮) -->
+                        <path d="M170 54 A116 116 0 0 0 170 286 Z" fill="#f8fafc"/>
+                        <!-- 细粮米粒质感点缀 -->
+                        <g fill="#e2e8f0">
+                            <ellipse cx="120" cy="120" rx="4" ry="2" transform="rotate(35 120 120)"/>
+                            <ellipse cx="140" cy="160" rx="4" ry="2" transform="rotate(-15 140 160)"/>
+                            <ellipse cx="110" cy="180" rx="4" ry="2" transform="rotate(45 110 180)"/>
+                            <ellipse cx="130" cy="220" rx="4" ry="2" transform="rotate(20 130 220)"/>
+                            <ellipse cx="150" cy="100" rx="4" ry="2" transform="rotate(-30 150 100)"/>
+                        </g>
+
+                        <!-- 碗内右半侧：黑豆与黄豆相间 (粗粮) -->
+                        <path d="M170 54 A116 116 0 0 1 170 286 Z" fill="#18181b"/>
+                        <!-- 黄豆点阵 -->
+                        <g fill="#f59e0b">
+                            <circle cx="195" cy="90" r="7"/>
+                            <circle cx="225" cy="115" r="7"/>
+                            <circle cx="210" cy="150" r="7"/>
+                            <circle cx="245" cy="170" r="7"/>
+                            <circle cx="215" cy="195" r="7"/>
+                            <circle cx="240" cy="220" r="7"/>
+                            <circle cx="195" cy="245" r="7"/>
+                        </g>
+                        <!-- 黑豆高光点缀 -->
+                        <g fill="#52525b">
+                            <circle cx="210" cy="80" r="8"/>
+                            <circle cx="250" cy="135" r="8"/>
+                            <circle cx="225" cy="175" r="8"/>
+                            <circle cx="190" cy="170" r="7"/>
+                            <circle cx="210" cy="225" r="8"/>
+                        </g>
+                        <!-- 碗中心分割流线 -->
+                        <path d="M170 54 Q190 120 170 170 T170 286" stroke="#94a3b8" stroke-width="2" fill="none" opacity="0.6"/>
+                    </svg>
+
+                    <!-- 右侧对比知识点说明 -->
+                    <div style="flex: 1;">
+                        <div style="display: flex; gap: 16px; margin-bottom: 18px;">
+                            <div style="flex: 1; background: rgba(255,255,255,0.06); padding: 16px 20px; border-radius: 12px; border-left: 4px solid #38bdf8;">
+                                <h4 style="color: #38bdf8; font-size: 18px; margin-bottom: 6px;">细粮（精白米面）</h4>
+                                <p style="font-size: 14px; color: #cbd5e1; line-height: 1.5;">优势：口感软糯、极易消化吸收。<br>不足：在精深加工中流失了部分B族维生素与矿物质。</p>
+                            </div>
+                            <div style="flex: 1; background: rgba(255,255,255,0.06); padding: 16px 20px; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                                <h4 style="color: #f59e0b; font-size: 18px; margin-bottom: 6px;">粗粮（黄豆/黑豆/糙米）</h4>
+                                <p style="font-size: 14px; color: #cbd5e1; line-height: 1.5;">优势：完整保留B族维生素与高膳食纤维。<br>不足：口感偏粗硬，过量易饱胀。</p>
+                            </div>
+                        </div>
+                        <div style="padding: 14px 20px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px;">
+                            <p style="color: #a7f3d0; font-size: 15px; font-weight: 500;">
+                                💡 <strong>杂粮饭配方：</strong>白米混入适量黑豆、黄豆或燕麦同煮，既照顾了软糯口感，又彻底补全了营养短板！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 场景 6: 课本插图矢量还原 2：荤素搭配与彩虹互补 (138.8 - 181.0s) -->
+            <div class="scene scene-6">
+                <div class="badge-tag">教材经典插图一比一矢量还原</div>
+                <h1 class="scene-title">经典搭配二：荤素搭配 · 铁与维C互促</h1>
+                <div class="diagram-container">
+                    <!-- 课本图2矢量化：鲜红肉块、翠绿西兰花、多汁番茄、青椒与大蒜组合 -->
+                    <svg width="340" height="300" viewBox="0 0 340 300" class="floating">
+                        <defs>
+                            <linearGradient id="meat-cut" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#ef4444"/>
+                                <stop offset="100%" stop-color="#991b1b"/>
+                            </linearGradient>
+                            <linearGradient id="broccoli-leaf" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#15803d"/>
+                                <stop offset="100%" stop-color="#14532d"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- 砧板底座 -->
+                        <rect x="20" y="20" width="300" height="260" rx="16" fill="#451a03" stroke="#78350f" stroke-width="4"/>
+                        <rect x="30" y="30" width="280" height="240" rx="12" fill="#7c2d12" opacity="0.6"/>
+
+                        <!-- 优质红肉切块 (血红素铁) -->
+                        <g id="meat">
+                            <path d="M170 120 C180 80 270 90 280 140 C285 180 230 230 180 210 C160 200 155 150 170 120 Z" fill="url(#meat-cut)" stroke="#b91c1c" stroke-width="2"/>
+                            <!-- 肌肉脂肪纹理 -->
+                            <path d="M190 125 Q230 145 250 135" stroke="#fecaca" stroke-width="3" fill="none" opacity="0.8"/>
+                            <path d="M185 155 Q215 175 240 165" stroke="#fecaca" stroke-width="3" fill="none" opacity="0.8"/>
+                            <path d="M195 180 Q215 195 230 190" stroke="#fecaca" stroke-width="2" fill="none" opacity="0.8"/>
+                        </g>
+
+                        <!-- 翠绿西兰花 (维生素C、叶酸) -->
+                        <g id="broccoli">
+                            <rect x="80" y="140" width="16" height="35" rx="4" fill="#a3e635"/>
+                            <circle cx="70" cy="115" r="22" fill="url(#broccoli-leaf)"/>
+                            <circle cx="95" cy="110" r="24" fill="url(#broccoli-leaf)"/>
+                            <circle cx="115" cy="125" r="20" fill="url(#broccoli-leaf)"/>
+                            <circle cx="85" cy="90" r="24" fill="#16a34a"/>
+                        </g>
+
+                        <!-- 饱满红番茄 (番茄红素、维C) -->
+                        <g id="tomato">
+                            <circle cx="140" cy="190" r="30" fill="#dc2626" stroke="#b91c1c" stroke-width="2"/>
+                            <ellipse cx="132" cy="175" rx="8" ry="4" fill="#f87171" opacity="0.7"/>
+                            <!-- 番茄蒂 -->
+                            <polygon points="140,160 135,165 145,165" fill="#15803d"/>
+                            <circle cx="140" cy="162" r="3" fill="#22c55e"/>
+                        </g>
+
+                        <!-- 青椒与大蒜点缀 -->
+                        <path d="M45 180 Q60 160 80 200 Q70 230 50 210 Z" fill="#16a34a"/>
+                        <circle cx="260" cy="70" r="12" fill="#f8fafc"/>
+                        <circle cx="275" cy="78" r="10" fill="#e2e8f0"/>
+                    </svg>
+
+                    <!-- 右侧互补逻辑与彩虹色彩 -->
+                    <div style="flex: 1;">
+                        <div style="padding: 16px 20px; background: rgba(239, 68, 68, 0.15); border-left: 4px solid #ef4444; border-radius: 10px; margin-bottom: 14px;">
+                            <h4 style="color: #f87171; font-size: 18px; margin-bottom: 4px;">肉类（血红素铁 + 优质蛋白）</h4>
+                            <p style="font-size: 14px; color: #cbd5e1;">红肉补血效果好，但膳食纤维较少。</p>
+                        </div>
+                        <div style="padding: 16px 20px; background: rgba(16, 185, 129, 0.15); border-left: 4px solid #10b981; border-radius: 10px; margin-bottom: 14px;">
+                            <h4 style="color: #34d399; font-size: 18px; margin-bottom: 4px;">蔬果（维生素C + 膳食纤维）</h4>
+                            <p style="font-size: 14px; color: #cbd5e1;">维C强效还原铁元素，让吸收率翻倍——实现 <strong>1 + 1 > 2</strong>！</p>
+                        </div>
+
+                        <!-- 五色彩虹蔬菜 -->
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                            <span style="font-size: 13px; color: #94a3b8; font-weight: 600;">餐盘五色：</span>
+                            <span style="background: #dc2626; color: #fff; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">红(番茄)</span>
+                            <span style="background: #eab308; color: #000; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">黄(胡萝卜)</span>
+                            <span style="background: #16a34a; color: #fff; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">绿(菠菜)</span>
+                            <span style="background: #7c3aed; color: #fff; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">紫(甘蓝)</span>
+                            <span style="background: #f8fafc; color: #000; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">白(山药)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 场景 7: 互动交流与自查表格 (181.0 - 215.8s) -->
+            <div class="scene scene-7">
+                <div class="badge-tag">互动交流 · 自我测评</div>
+                <h1 class="scene-title">昨日饮食小测试：你达标了吗？</h1>
+                <div class="interactive-table">
+                    <div class="table-head">
+                        <div>检查维度</div>
+                        <div>科学达标要求</div>
+                        <div style="text-align: center;">达标判定</div>
+                    </div>
+                    <div class="table-row">
+                        <div style="font-weight: 600; color: #38bdf8;">1. 种类数量</div>
+                        <div>一天内摄入的食物种类是否达到 <strong>不少于12种</strong></div>
+                        <div>
+                            <div class="check-badge badge-success">✓</div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div style="font-weight: 600; color: #f59e0b;">2. 同类常换</div>
+                        <div>同类食物常换着吃（如米、面、玉米杂粮轮换，不只吃白米）</div>
+                        <div>
+                            <div class="check-badge badge-success">✓</div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div style="font-weight: 600; color: #ec4899;">3. 巧妙搭配</div>
+                        <div>做到粗细搭配、荤素同餐、深浅多色彩均衡</div>
+                        <div>
+                            <div class="check-badge badge-success">✓</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; display: flex; align-items: center; gap: 14px; background: rgba(16, 185, 129, 0.12); padding: 10px 24px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    <span style="font-size: 20px;">🏆</span>
+                    <span style="color: #6ee7b7; font-size: 15px; font-weight: 500;">三项全勾说明结构极佳！如果有叉，正是今天开始改进的绝佳起点！</span>
+                </div>
+            </div>
+
+            <!-- 场景 8: 升华总结：不挑食不偏食 (215.8 - 246.72s) -->
+            <div class="scene scene-8">
+                <div class="badge-tag">健康生活伴我行</div>
+                <h1 class="scene-title">不挑食、不偏食 · 享用多样化的餐盘智慧</h1>
+                <div class="plate-summary-wrap">
+                    <!-- 彩虹多样化旋转餐盘 -->
+                    <svg width="280" height="280" viewBox="0 0 280 280">
+                        <g class="hero-circle" style="transform-origin: 140px 140px;">
+                            <!-- 餐盘外沿 -->
+                            <circle cx="140" cy="140" r="130" fill="none" stroke="#334155" stroke-width="12"/>
+                            <!-- 彩虹环 -->
+                            <circle cx="140" cy="140" r="120" fill="none" stroke="#ef4444" stroke-width="10" stroke-dasharray="125 628" stroke-dashoffset="0"/>
+                            <circle cx="140" cy="140" r="120" fill="none" stroke="#f59e0b" stroke-width="10" stroke-dasharray="125 628" stroke-dashoffset="-125"/>
+                            <circle cx="140" cy="140" r="120" fill="none" stroke="#10b981" stroke-width="10" stroke-dasharray="125 628" stroke-dashoffset="-250"/>
+                            <circle cx="140" cy="140" r="120" fill="none" stroke="#38bdf8" stroke-width="10" stroke-dasharray="125 628" stroke-dashoffset="-375"/>
+                            <circle cx="140" cy="140" r="120" fill="none" stroke="#8b5cf6" stroke-width="10" stroke-dasharray="128 628" stroke-dashoffset="-500"/>
+                        </g>
+                        <!-- 餐盘内部核心 -->
+                        <circle cx="140" cy="140" r="95" fill="#0f172a" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+                        <text x="140" y="130" fill="#34d399" font-size="20" font-weight="bold" text-anchor="middle">均衡膳食</text>
+                        <text x="140" y="158" fill="#94a3b8" font-size="14" text-anchor="middle">健康长伴</text>
+                    </svg>
+
+                    <!-- 总结要诀清单 -->
+                    <div style="flex: 1; max-width: 580px;">
+                        <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 22px 28px; margin-bottom: 14px;">
+                            <h3 style="color: #f87171; font-size: 19px; margin-bottom: 6px;">🚫 拒绝偏食与挑食</h3>
+                            <p style="font-size: 14px; color: #cbd5e1; line-height: 1.5;">
+                                偏食本质上是主动放弃了整类食物。营养均衡从来不是靠单一的“超级食物”，而是靠<strong>整个多样化的食物组合</strong>。
+                            </p>
+                        </div>
+                        <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 18px 28px;">
+                            <h3 style="color: #34d399; font-size: 18px; margin-bottom: 6px;">🌟 从下一顿饭开始行动</h3>
+                            <p style="font-size: 14px; color: #a7f3d0; line-height: 1.5;">
+                                试着让盘子里的种类多一点、颜色丰富一点、搭配讲究一点，身体自然会慢慢给你最美好的健康回报！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 交互与字幕播放栏 -->
+        <div class="controls-wrapper">
+            <div class="subtitle-area">
+                <div class="subtitle-text" id="subtitleText">准备就绪，点击播放</div>
+            </div>
+            <div class="control-row">
+                <button class="play-btn" id="playBtn" title="播放 / 暂停">▶</button>
+                <div class="progress-box" id="progressBox">
+                    <div class="progress-track">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+                <div class="time-label">
+                    <span id="curTimeLabel">0:00</span> / <span id="durTimeLabel">加载中...</span>
+                </div>
+            </div>
+        </div>
+    </page>
+
+    <script>
+        /* ==================== 1. 音频与字幕数据源 ==================== */
+        const AUDIO_URL = "https://ossv2.jbangai.com/ai/at/other/file/20260921223037afun.wav";
+
+        // 字幕数据：严格逐字匹配传入的音频分句数据，且转义内部可能存在的双引号
+        const SUBTITLE_DATA = [
+            { text: "同学们好，今天我们来聊一个特别实用的话题，食物要多样。", start: 0.16, end: 5.96 },
+            { text: "很多同学可能会问，我每天吃的也不少啊，为什么还是觉得营养不够均衡呢？", start: 6.72, end: 12.52 },
+            { text: "答案很可能就藏在多样这两个字里。", start: 13.28, end: 16.64 },
+            { text: "我们先看一个数字，每天不少于12种，每周不少于25种，这就是两种。", start: 17.20, end: 24.72 },
+            { text: "但如果你吃了3碗米饭，那还是只有一种，因为都是大米。", start: 25.33, end: 29.89 },
+            { text: "那这12种、25种具体从哪里来呢？", start: 30.45, end: 33.69 },
+            { text: "指南把食物分成了六大类，谷薯类、蔬菜水果类、鱼禽肉蛋类、奶类、豆类和坚果类。", start: 34.17, end: 42.93 },
+            { text: "这六大类就像一个营养天团的六个成员，每个成员负责提供不同的营养素，谁也替代不了谁。", start: 43.55, end: 51.27 },
+            { text: "谷薯类提供碳水化合物，是身体的燃料。", start: 51.91, end: 55.19 },
+            { text: "蔬菜水果提供维生素、矿物质和膳食纤维。", start: 55.83, end: 59.47 },
+            { text: "鱼禽肉蛋提供优质蛋白和铁锌。", start: 60.07, end: 63.03 },
+            { text: "奶类提供钙。", start: 63.51, end: 64.71 },
+            { text: "豆类和坚果提供优质脂肪和植物蛋白。", start: 65.19, end: 68.47 },
+            { text: "所以均衡的第一步就是让这六个成员每天都到场，但光到场还不够还要会变换。", start: 69.19, end: 76.67 },
+            { text: "什么意思呢？", start: 77.31, end: 77.99 },
+            { text: "就是同一类食物要经常换着吃，比如主食今天吃米饭明天可以吃面条后天换成玉米红薯燕麦肉类今天吃鱼明天吃虾后天吃鸡肉。", start: 78.39, end: 92.71 },
+            { text: "为什么要换？", start: 93.28, end: 94.04 },
+            { text: "因为即使是同一类食物，它们的营养构成也有差别。", start: 94.64, end: 98.64 },
+            { text: "大米蛋白质里赖氨酸偏少，而豆类恰恰富含赖氨酸，两者搭配，蛋白质的利用率就提高了，这就是我们说的蛋白质互补。", start: 99.20, end: 109.68 },
+            { text: "接下来是第三个要点：巧搭配。", start: 110.36, end: 112.92 },
+            { text: "书上的配图给了两个特别经典的例子，第一个是粗粮和细粮搭配。", start: 113.60, end: 118.84 },
+            { text: "你看图里，白米里加了黄豆、黑豆，一起煮成杂粮饭。", start: 119.40, end: 124.00 },
+            { text: "粗粮保留了更多的B族维生素和膳食纤维，但口感偏粗。", start: 124.52, end: 129.28 },
+            { text: "细粮口感好、易消化，但营养在精加工中流失了一部分。", start: 129.80, end: 134.64 },
+            { text: "两者混着吃，既照顾了口感，又补上了营养。", start: 135.20, end: 138.40 },
+            { text: "第二个是荤素搭配。", start: 139.18, end: 140.82 },
+            { text: "图里有红肉、西兰花、番茄。", start: 141.30, end: 143.86 },
+            { text: "肉类提供优质蛋白和血红素铁，蔬菜提供维生素C和膳食纤维。", start: 144.38, end: 149.98 },
+            { text: "而且维生素C还能帮助铁的吸收。", start: 150.54, end: 153.18 },
+            { text: "红肉配番茄，这就是1+1>2的效果。", start: 153.70, end: 157.50 },
+            { text: "除了粗粮细粮、荤素，还有一个容易被忽略的搭配原则，颜色深浅互补。", start: 158.28, end: 164.20 },
+            { text: "深色蔬菜，比如菠菜、胡萝卜、紫甘蓝，它们的胡萝卜素、花青素含量通常比浅色蔬菜高。", start: 164.84, end: 172.68 },
+            { text: "所以一餐饭里，如果能凑齐红、黄、绿、紫、白几种颜色，营养上基本就稳了。", start: 173.28, end: 180.56 },
+            { text: "现在我们来做一个小练习，请你想一想你昨天一天吃了哪些东西，然后对照三个标准打个勾或者叉。", start: 181.36, end: 189.92 },
+            { text: "第一，食物种类有没有达到12种？", start: 190.48, end: 193.40 },
+            { text: "第二，同类食物有没有换着吃？", start: 193.92, end: 196.64 },
+            { text: "比如主食是不是只有白米饭？", start: 197.00, end: 199.40 },
+            { text: "第三，有没有做到合理搭配？", start: 200.01, end: 202.25 },
+            { text: "比如有没有粗粮配细粮，有没有荤素同餐。", start: 202.53, end: 206.29 },
+            { text: "如果三条都是勾，恭喜你，你的饮食结构相当不错；如果有差，那正好，那就是你今天可以改进的地方。", start: 207.01, end: 215.53 },
+            { text: "最后我想强调一句，听起来很朴素但特别重要的话：不挑食、不偏食。", start: 216.13, end: 222.13 },
+            { text: "挑食和偏食，本质上就是主动放弃了某些食物类别。", start: 222.68, end: 226.80 },
+            { text: "久而久之，某些营养素就会长期缺口。", start: 227.16, end: 230.24 },
+            { text: "营养均衡从来不是靠某一种超级食物，而是靠一整个多样化的食物组合。", start: 230.80, end: 236.72 },
+            { text: "所以从今天这顿饭开始，试着让四摊盘里的种类多一点、颜色丰富一点、搭配讲究一点，你的身体会慢慢给你回报的。", start: 237.32, end: 246.56 }
+        ];
+
+        // 场景时间覆盖（无缝覆盖0到246.72秒全程，杜绝画面定格）
+        const SCENE_DATA = [
+            { scene: 1, start: 0.00, end: 17.00 },
+            { scene: 2, start: 17.00, end: 33.80 },
+            { scene: 3, start: 33.80, end: 69.00 },
+            { scene: 4, start: 69.00, end: 110.00 },
+            { scene: 5, start: 110.00, end: 138.80 },
+            { scene: 6, start: 138.80, end: 181.00 },
+            { scene: 7, start: 181.00, end: 215.80 },
+            { scene: 8, start: 215.80, end: 247.00 }
+        ];
+
+        /* ==================== 2. 虚拟时钟与播放控制 ==================== */
+        class VirtualAudio {
+            constructor(duration = 246.72) {
+                this.currentTime = 0;
+                this.duration = duration;
+                this.paused = true;
+                this._lastTimestamp = 0;
+            }
+            play() {
+                this.paused = false;
+                this._lastTimestamp = performance.now();
+            }
+            pause() {
+                this.paused = true;
+            }
+            tick() {
+                if (this.paused) return;
+                const now = performance.now();
+                const delta = (now - this._lastTimestamp) / 1000;
+                this.currentTime = Math.min(this.currentTime + delta, this.duration);
+                this._lastTimestamp = now;
+                if (this.currentTime >= this.duration) {
+                    this.pause();
+                }
+            }
+        }
+
+        // 强制格式化时间函数名：formatting
+        function formatting(seconds) {
+            if (isNaN(seconds) || seconds < 0) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        let audio = new Audio(AUDIO_URL);
+        let isVirtual = false;
+        let isPlaying = false;
+        let activeSceneIndex = -1;
+
+        const playBtn = document.getElementById('playBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressBox = document.getElementById('progressBox');
+        const subtitleText = document.getElementById('subtitleText');
+        const curTimeLabel = document.getElementById('curTimeLabel');
+        const durTimeLabel = document.getElementById('durTimeLabel');
+
+        // 音频容错降级
+        audio.onerror = () => {
+            console.warn("网络音频加载受限，切换为精准模拟时钟驱动");
+            const currentPosition = audio.currentTime || 0;
+            audio = new VirtualAudio(246.72);
+            audio.currentTime = currentPosition;
+            isVirtual = true;
+            durTimeLabel.textContent = formatting(audio.duration);
+        };
+
+        audio.onloadedmetadata = () => {
+            durTimeLabel.textContent = formatting(audio.duration);
+        };
+
+        // 核心渲染循环
+        function renderLoop() {
+            if (!isPlaying) return;
+
+            if (isVirtual) {
+                audio.tick();
+            }
+
+            const curr = audio.currentTime;
+            const total = audio.duration || 246.72;
+
+            // 1. 进度条与时间
+            const ratio = Math.min(1, Math.max(0, curr / total));
+            progressBar.style.width = `${ratio * 100}%`;
+            curTimeLabel.textContent = formatting(curr);
+
+            // 2. 字幕检索（区间严格判断）
+            const matchedSub = SUBTITLE_DATA.find(item => curr >= item.start && curr < item.end);
+            subtitleText.textContent = matchedSub ? matchedSub.text : '';
+
+            // 3. 场景检索与平滑切换
+            const matchedScene = SCENE_DATA.find(item => curr >= item.start && curr < item.end);
+            if (matchedScene && matchedScene.scene !== activeSceneIndex) {
+                activeSceneIndex = matchedScene.scene;
+                document.querySelectorAll('.scene').forEach(sc => sc.classList.remove('active'));
+                const targetSceneEl = document.querySelector(`.scene-${activeSceneIndex}`);
+                if (targetSceneEl) {
+                    targetSceneEl.classList.add('active');
+                }
+            }
+
+            // 播放结束复位
+            if (curr >= total) {
+                isPlaying = false;
+                playBtn.innerHTML = '▶';
+                return;
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        // 播放 / 暂停切换
+        playBtn.onclick = () => {
+            if (audio.paused) {
+                audio.play();
+                isPlaying = true;
+                playBtn.innerHTML = '⏸';
+                renderLoop();
+            } else {
+                audio.pause();
+                isPlaying = false;
+                playBtn.innerHTML = '▶';
+            }
+        };
+
+        // 点击进度条跳转
+        progressBox.onclick = (e) => {
+            const rect = progressBox.getBoundingClientRect();
+            const clickRatio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const targetTime = clickRatio * (audio.duration || 246.72);
+
+            audio.currentTime = targetTime;
+            if (isVirtual) {
+                audio._lastTimestamp = performance.now();
+            }
+
+            // 若暂停中，同步刷新一次UI视图
+            if (!isPlaying) {
+                isPlaying = true;
+                renderLoop();
+                isPlaying = false;
+            }
+        };
+    </script>
+</body>
+</html>

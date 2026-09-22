@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食材归位辨识挑战 · 武平美食小侦探</title>
+<style>
+  :root {
+    --c-primary: #2E6B4F;    /* 主色：墨绿 */
+    --c-secondary: #C94B1F;  /* 强调：客家红 */
+    --c-accent: #F5A623;     /* 金黄 */
+    --c-bg: #FFF8E7;         /* 米黄底 */
+    --c-card: #FFFFFF;
+    --c-text: #2C2C2C;
+    --c-shadow: rgba(46,107,79,.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #FFF8E7 0%, #FFEFD0 100%);
+    color: var(--c-text);
+    overflow: hidden;
+    user-select: none;
+  }
+  /* ---------- 顶部信息栏 ---------- */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px;
+    background: var(--c-primary);
+    color: #FFF8E7;
+    box-shadow: 0 4px 12px var(--c-shadow);
+    position: relative;
+    z-index: 10;
+  }
+  .topbar .title { font-size: 22px; font-weight: 700; letter-spacing: 2px; }
+  .topbar .title .badge {
+    background: var(--c-accent);
+    color: var(--c-primary);
+    padding: 2px 10px;
+    border-radius: 14px;
+    font-size: 14px;
+    margin-left: 10px;
+  }
+  .stats { display: flex; gap: 18px; align-items: center; font-size: 16px; }
+  .stats .item { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.16); padding: 6px 14px; border-radius: 16px; }
+  .stats .icon { font-size: 18px; }
+
+  /* ---------- 主舞台 ---------- */
+  .stage {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 18px;
+    padding: 18px;
+    height: calc(100vh - 64px);
+  }
+  /* 左侧：宝塔 */
+  .tower-area {
+    background: var(--c-card);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 6px 18px var(--c-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tower-area h2 { font-size: 18px; color: var(--c-primary); margin-bottom: 10px; letter-spacing: 1px; }
+  .tower {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .layer {
+    position: relative;
+    border-radius: 14px;
+    border: 3px dashed transparent;
+    padding: 10px 14px;
+    transition: all .2s;
+    color: #FFF8E7;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .layer.drag-over {
+    border-color: var(--c-accent);
+    background-color: rgba(245,166,35,.25) !important;
+    transform: scale(1.02);
+  }
+  .layer .lname { font-weight: 700; font-size: 16px; }
+  .layer .ltip { font-size: 12px; opacity: .92; }
+  .layer .lcount {
+    background: rgba(255,255,255,.25);
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 36px;
+    text-align: center;
+  }
+  .l5 { background: #B23A2E; }
+  .l4 { background: #4F8BB3; }
+  .l3 { background: #D4823A; }
+  .l2 { background: #5C9D5C; }
+  .l1 { background: #C49A4E; }
+
+  /* 右侧：食材池 + 当前题 */
+  .right-area {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 14px;
+  }
+  .question-card {
+    background: var(--c-card);
+    border-radius: 18px;
+    padding: 16px 20px;
+    box-shadow: 0 6px 18px var(--c-shadow);
+    border-left: 6px solid var(--c-secondary);
+  }
+  .question-card .q-title { font-size: 16px; color: var(--c-primary); margin-bottom: 6px; font-weight: 700; }
+  .question-card .q-body { font-size: 15px; color: #444; }
+  .question-card .q-progress { margin-top: 8px; font-size: 13px; color: #888; }
+
+  .pool {
+    background: var(--c-card);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 6px 18px var(--c-shadow);
+    display: flex;
+    flex-direction: column;
+  }
+  .pool h2 { font-size: 16px; color: var(--c-primary); margin-bottom: 10px; letter-spacing: 1px; }
+  .pool-items {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-content: flex-start;
+    overflow-y: auto;
+  }
+  .chip {
+    background: var(--c-bg);
+    border: 2px solid var(--c-primary);
+    color: var(--c-primary);
+    border-radius: 22px;
+    padding: 8px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: grab;
+    transition: all .18s;
+    box-shadow: 0 3px 8px var(--c-shadow);
+  }
+  .chip:hover { background: var(--c-primary); color: #FFF8E7; transform: translateY(-2px); }
+  .chip:active { cursor: grabbing; }
+  .chip.dragging { opacity: .35; }
+  .chip[draggable="false"] { opacity: .55; cursor: default; background: #E0E0E0; border-color: #999; color: #666; }
+  .chip[draggable="false"]:hover { background: #E0E0E0; color: #666; transform: none; }
+
+  /* ---------- 弹窗 ---------- */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+  }
+  .modal.show { display: flex; animation: fadeIn .3s; }
+  .modal-card {
+    background: var(--c-card);
+    border-radius: 22px;
+    padding: 36px 44px;
+    text-align: center;
+    max-width: 460px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    animation: popIn .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .modal-card .icon { font-size: 60px; margin-bottom: 12px; }
+  .modal-card h1 { font-size: 28px; color: var(--c-primary); margin-bottom: 8px; }
+  .modal-card p { font-size: 16px; color: #555; margin-bottom: 6px; line-height: 1.6; }
+  .modal-card .score-big { font-size: 42px; color: var(--c-secondary); font-weight: 800; margin: 12px 0; }
+  .modal-card button {
+    margin-top: 16px;
+    background: var(--c-primary);
+    color: #FFF8E7;
+    border: none;
+    padding: 12px 32px;
+    font-size: 16px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 2px;
+    transition: all .2s;
+  }
+  .modal-card button:hover { background: var(--c-secondary); transform: translateY(-2px); }
+
+  /* ---------- 飞入动效 ---------- */
+  .fly-toast {
+    position: fixed;
+    background: var(--c-primary);
+    color: #FFF8E7;
+    padding: 10px 20px;
+    border-radius: 22px;
+    font-weight: 600;
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 200;
+    animation: flyUp 1.2s ease-out forwards;
+    box-shadow: 0 6px 20px var(--c-shadow);
+  }
+  .fly-toast.bad { background: var(--c-secondary); }
+  @keyframes flyUp {
+    0% { opacity: 0; transform: translateY(20px) scale(.7); }
+    20% { opacity: 1; transform: translateY(0) scale(1.05); }
+    80% { opacity: 1; transform: translateY(-20px) scale(1); }
+    100% { opacity: 0; transform: translateY(-50px) scale(.9); }
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+
+  .shake { animation: shake .35s; }
+
+  /* 移动端适配 */
+  @media (max-width: 880px) {
+    .stage { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; height: calc(100vh - 64px); }
+    .topbar .title { font-size: 16px; }
+    .layer { min-height: 48px; }
+    .layer .lname { font-size: 14px; }
+    .layer .ltip { display: none; }
+  }
+
+  /* ========== 16:9 课堂演示版覆盖样式 ========== */
+  body { min-width: 0; }
+  button { font: inherit; }
+  .topbar { height: 68px; padding: 0 26px; }
+  .topbar .title { font-size: clamp(19px, 1.45vw, 24px); font-weight: 800; }
+  .stats { gap: 10px; font-size: 15px; }
+  .stats .item { padding: 7px 12px; white-space: nowrap; }
+
+  .stage {
+    height: calc(100vh - 68px);
+    min-height: 590px;
+    grid-template-columns: minmax(0, 1.62fr) minmax(330px, .95fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 16px;
+    padding: 16px;
+  }
+  .tower-area {
+    min-width: 0;
+    padding: 16px 22px 18px;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: stretch;
+    overflow: hidden;
+  }
+  .tower-heading {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--c-primary);
+    padding: 0 4px 8px;
+  }
+  .tower-heading h2 { font-size: clamp(17px, 1.25vw, 21px); letter-spacing: 1px; }
+  .tower-heading span { color: #6D766F; font-size: 12px; }
+  .tower {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, .85vh, 10px);
+    padding: 6px 0 10px;
+  }
+  .layer {
+    min-width: 250px;
+    min-height: 0;
+    height: clamp(60px, 9vh, 88px);
+    flex: 0 0 auto;
+    border: 3px solid rgba(255,255,255,.22);
+    border-radius: 16px;
+    padding: 10px clamp(14px, 1.5vw, 24px);
+    cursor: pointer;
+    box-shadow: 0 5px 12px rgba(51,45,31,.14);
+    outline: none;
+  }
+  .layer::before {
+    content: attr(data-key);
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255,255,255,.25);
+    font-size: 12px;
+    font-weight: 900;
+  }
+  .layer > div:first-of-type { padding-left: 25px; min-width: 0; }
+  .layer:hover,
+  .layer:focus-visible { transform: translateY(-2px) scale(1.015); filter: brightness(1.06); box-shadow: 0 9px 20px rgba(46,107,79,.22); border-color: #FFF4C5; }
+  .layer.drag-over { transform: scale(1.035); border-color: #FFD45E; box-shadow: 0 0 0 5px rgba(245,166,35,.22); }
+  .l5.drag-over { background-color: #B23A2E !important; }
+  .l4.drag-over { background-color: #4F8BB3 !important; }
+  .l3.drag-over { background-color: #D4823A !important; }
+  .l2.drag-over { background-color: #5C9D5C !important; }
+  .l1.drag-over { background-color: #C49A4E !important; }
+  .layer .lname { font-size: clamp(15px, 1.05vw, 18px); white-space: nowrap; }
+  .layer .ltip { display: block; margin-top: 3px; font-size: clamp(11px, .78vw, 13px); white-space: nowrap; }
+  .l5 { width: 52%; }
+  .l4 { width: 64%; }
+  .l3 { width: 76%; }
+  .l2 { width: 88%; }
+  .l1 { width: 100%; }
+
+  .right-area {
+    min-width: 0;
+    grid-template-rows: minmax(220px, .8fr) minmax(220px, 1fr) auto;
+    gap: 13px;
+  }
+  .question-card, .pool, .answer-card { border-radius: 20px; box-shadow: 0 7px 22px var(--c-shadow); }
+  .question-card {
+    min-height: 170px;
+    padding: 22px 26px;
+    border-left-width: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .question-card .q-title { font-size: clamp(21px, 1.55vw, 27px); margin-bottom: 16px; }
+  .question-card .q-body { font-size: clamp(24px, 1.85vw, 32px); font-weight: 700; line-height: 1.5; }
+  .question-card .q-progress { min-height: 26px; margin-top: 16px; font-size: clamp(15px, 1.02vw, 18px); line-height: 1.6; }
+  .q-progress.good { color: var(--c-primary); font-weight: 700; }
+  .q-progress.bad { color: var(--c-secondary); font-weight: 700; }
+  .pool { padding: 18px; align-items: stretch; justify-content: center; overflow: hidden; }
+  .pool h2 { align-self: flex-start; font-size: 15px; margin-bottom: 12px; }
+  .pool-items { flex: 0 0 auto; min-height: 110px; display: grid; place-items: center; overflow: visible; }
+  .chip {
+    min-width: min(88%, 320px);
+    max-width: 96%;
+    background: linear-gradient(145deg, #FFFDF7, #FFF0C8);
+    border: 3px solid var(--c-primary);
+    border-radius: 28px;
+    padding: 20px 24px;
+    font-size: clamp(22px, 2vw, 32px);
+    text-align: center;
+    touch-action: none;
+    box-shadow: 0 8px 18px var(--c-shadow);
+  }
+  .chip:hover { background: linear-gradient(145deg, #FFFDF7, #FFF0C8); color: var(--c-primary); transform: translateY(-3px) rotate(-1deg); }
+  .chip.dragging { opacity: .38; transform: scale(.96); }
+  .chip.correct { background: #FFE09A; border-color: var(--c-accent); color: var(--c-primary); }
+  .pool-help { margin-top: 12px; color: #6D766F; font-size: 12px; text-align: center; line-height: 1.5; }
+
+  .answer-card {
+    background: var(--c-card);
+    padding: 15px 16px;
+    display: grid;
+    gap: 10px;
+  }
+  .trash-zone {
+    width: 100%;
+    min-height: 78px;
+    border: 2px dashed #D88476;
+    background: #F8E3DC;
+    color: #953A30;
+    border-radius: 18px;
+    padding: 18px 20px;
+    font-size: clamp(17px, 1.2vw, 21px);
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .trash-zone:hover,
+  .trash-zone:focus-visible,
+  .trash-zone.drag-over { transform: translateY(-2px); background: #F4D3C9; box-shadow: 0 6px 16px rgba(178,58,46,.18); outline: none; border-color: #C86455; }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(23,50,38,.76);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 110;
+    padding: 24px;
+    backdrop-filter: blur(5px);
+  }
+  .overlay.is-hidden { display: none; }
+  .start-card { width: min(92vw, 560px); background: var(--c-card); border-radius: 24px; padding: 34px 38px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: popIn .35s cubic-bezier(.34,1.56,.64,1); }
+  .start-card .start-icon { font-size: 56px; margin-bottom: 10px; }
+  .start-card h1 { font-size: 28px; color: var(--c-primary); margin-bottom: 9px; }
+  .start-card p { font-size: 15px; color: #59635C; margin-bottom: 8px; line-height: 1.65; }
+  .start-actions { display: grid; grid-template-columns: minmax(220px, 320px); justify-content: center; gap: 12px; margin-top: 22px; }
+  .start-actions button { border: none; padding: 13px 20px; border-radius: 22px; cursor: pointer; font-weight: 800; transition: transform .18s; }
+  .start-actions button:hover { transform: translateY(-2px); }
+  .primary-btn { background: var(--c-primary); color: #FFFDF4; }
+  .pointer-ghost { position: fixed; z-index: 300; transform: translate(-50%, -50%); pointer-events: none; background: #FFF4CE; border: 2px solid var(--c-primary); color: var(--c-primary); border-radius: 20px; padding: 9px 14px; font-weight: 800; box-shadow: 0 8px 18px rgba(0,0,0,.2); }
+
+  @media (max-height: 760px) {
+    .topbar { height: 58px; }
+    .stage { height: calc(100vh - 58px); min-height: 0; padding: 10px; gap: 10px; }
+    .tower-area { padding: 11px 16px; }
+    .right-area { gap: 9px; }
+    .question-card, .pool, .answer-card { border-radius: 16px; }
+    .question-card { padding: 11px 15px; }
+    .pool { padding: 12px 15px; }
+    .chip { padding: 14px 20px; }
+    .layer { height: clamp(54px, 8.6vh, 68px); }
+    .answer-card { padding: 10px 12px; gap: 7px; }
+    .trash-zone { padding: 10px 14px; }
+  }
+  @media (max-width: 1100px) {
+    .stage { grid-template-columns: minmax(0, 1.42fr) minmax(315px, .9fr); }
+    .stats { gap: 6px; }
+    .stats .item { padding: 6px 9px; }
+    .tower-heading span { display: none; }
+  }
+  @media (max-height: 620px) and (min-width: 901px) {
+    .topbar { height: 54px; }
+    .stage { height: calc(100vh - 54px); min-height: 0; padding: 8px; gap: 8px; }
+    .tower-area { padding: 8px 13px; }
+    .tower-heading { padding-bottom: 3px; }
+    .layer { height: clamp(45px, 8.3vh, 60px); }
+    .layer .ltip { font-size: 10px; }
+    .right-area { grid-template-rows: minmax(170px, .8fr) minmax(170px, 1fr) auto; }
+    .question-card { min-height: 170px; padding: 14px 18px; }
+    .question-card .q-title { font-size: 19px; margin-bottom: 9px; }
+    .question-card .q-body { font-size: 22px; }
+    .question-card .q-progress { margin-top: 10px; font-size: 14px; }
+    .question-card .q-title { margin-bottom: 3px; }
+    .question-card .q-progress { margin-top: 4px; }
+    .pool { padding: 9px 13px; }
+    .pool h2, .pool-help { margin-bottom: 4px; margin-top: 4px; }
+    .chip { padding: 10px 16px; }
+    .answer-card { padding: 8px 10px; gap: 5px; }
+    .trash-zone { min-height: 62px; padding: 12px 14px; font-size: 16px; }
+  }
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .topbar { height: auto; min-height: 58px; padding: 9px 14px; gap: 8px; flex-wrap: wrap; }
+    .topbar .title { font-size: 18px; }
+    .stats { width: 100%; justify-content: space-between; font-size: 13px; }
+    .stats .item { padding: 5px 8px; }
+    .stage {
+      height: auto;
+      min-height: 0;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      padding: 10px;
+    }
+    .tower-area { min-height: 560px; }
+    .right-area { grid-template-rows: minmax(230px, auto) minmax(230px, auto) auto; }
+    .layer { min-width: 220px; }
+    .layer .ltip { display: block; }
+  }
+  @media (max-height: 500px) and (min-width: 901px) {
+    body { overflow: auto; }
+    .stage { height: auto; min-height: 500px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 顶部信息栏 -->
+<div class="topbar">
+  <div class="title">食材归位辨识挑战 <span class="badge">小侦探专属</span></div>
+  <div class="stats">
+    <div class="item"><span class="icon">⭐</span><span>得分：<b id="score">0</b></span></div>
+    <div class="item" id="timer-item"><span class="icon">⏱</span><span>剩余：<b id="timer">3:00</b></span></div>
+    <div class="item"><span class="icon">🎯</span><span>第 <b id="cur">1</b>/10 题</span></div>
+  </div>
+</div>
+
+<!-- 主舞台 -->
+<div class="stage">
+  <!-- 左侧：宝塔 -->
+  <div class="tower-area">
+    <div class="tower-heading">
+      <h2>📊 五年级平衡膳食宝塔</h2>
+      <span>点击塔层作答 · 也可拖拽</span>
+    </div>
+    <div class="tower" id="tower">
+      <div class="layer l5" data-layer="5" data-key="5" role="button" tabindex="0" aria-label="第五层，油盐糖">
+        <div><div class="lname">🔺 第五层 · 油盐糖</div><div class="ltip">严格控量 · 盐＜5g/天</div></div>
+        <div class="lcount">0</div>
+      </div>
+      <div class="layer l4" data-layer="4" data-key="4" role="button" tabindex="0" aria-label="第四层，奶豆坚果">
+        <div><div class="lname">🥛 第四层 · 奶豆坚果</div><div class="ltip">300g奶·105g大豆/周</div></div>
+        <div class="lcount">0</div>
+      </div>
+      <div class="layer l3" data-layer="3" data-key="3" role="button" tabindex="0" aria-label="第三层，鱼禽肉蛋">
+        <div><div class="lname">🍗 第三层 · 鱼禽肉蛋</div><div class="ltip">畜禽肉50g·水产50g</div></div>
+        <div class="lcount">0</div>
+      </div>
+      <div class="layer l2" data-layer="2" data-key="2" role="button" tabindex="0" aria-label="第二层，蔬菜水果">
+        <div><div class="lname">🥦 第二层 · 蔬菜水果</div><div class="ltip">蔬菜400~450g·水果200~300g</div></div>
+        <div class="lcount">0</div>
+      </div>
+      <div class="layer l1" data-layer="1" data-key="1" role="button" tabindex="0" aria-label="第一层，谷薯类">
+        <div><div class="lname">🍚 第一层 · 谷薯类</div><div class="ltip">谷类225~250g·全谷30~70g</div></div>
+        <div class="lcount">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧：题目 + 食材池 -->
+  <div class="right-area">
+    <div class="question-card">
+      <div class="q-title">🕵️ 当前任务</div>
+      <div class="q-body" id="qbody">准备好后选择一种模式开始。</div>
+      <div class="q-progress" id="qprogress" aria-live="polite">点击塔层、拖拽，或按数字键 1—5 作答。</div>
+    </div>
+    <div class="pool">
+      <h2>🍱 本题食材</h2>
+      <div class="pool-items" id="pool"></div>
+      <div class="pool-help">直接点击左侧塔层即可作答；桌面端也可拖拽食材卡。</div>
+    </div>
+    <div class="answer-card">
+      <button id="trash" class="trash-zone" type="button" aria-label="不属于宝塔，快捷键0">🚫 0 · 不属于宝塔（场外处理）</button>
+    </div>
+  </div>
+</div>
+
+<!-- 开始页：防止 PPT 预加载时提前计时 -->
+<div class="overlay" id="start-screen">
+  <div class="start-card">
+    <div class="start-icon">🏯</div>
+    <h1>食材归位辨识挑战</h1>
+    <p>把食材放进平衡膳食宝塔的正确层级。</p>
+    <p>可以点击塔层、按数字键，也可以直接拖拽食材卡。</p>
+    <div class="start-actions">
+      <button class="primary-btn" id="start-game" type="button">🎮 开始游戏</button>
+    </div>
+  </div>
+</div>
+
+<!-- 结算弹窗 -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="icon" id="m-icon">🎉</div>
+    <h1 id="m-title">破案成功！</h1>
+    <p id="m-text1"></p>
+    <div class="score-big" id="m-score">0 分</div>
+    <p id="m-text2"></p>
+    <button id="restart-btn" type="button">再玩一次</button>
+  </div>
+</div>
+
+<script>
+/* ========== 题目数据（10题，每题10分，满分100分） ========== */
+const QUESTIONS = [
+  { food: '🍚 白米饭',      answer: 1, tip: '白米饭是谷薯类，碳水化合物提供能量。' },
+  { food: '🥕 胡萝卜',      answer: 2, tip: '胡萝卜是蔬菜，提供维生素和纤维。' },
+  { food: '🐟 武平鲜鱼',    answer: 3, tip: '鱼肉属于水产类，是优质蛋白！' },
+  { food: '🥛 牛奶',        answer: 4, tip: '牛奶是奶类，每天300克。' },
+  { food: '🧂 食盐',        answer: 5, tip: '食盐属于调味品，每天少于5克。' },
+  { food: '🌰 客家坚果',    answer: 4, tip: '坚果属于奶豆坚果类，注意适量食用。' },
+  { food: '🍎 武平百香果',  answer: 2, tip: '百香果属于水果，富含维生素和膳食纤维。' },
+  { food: '🍵 武平紫灵芝',  answer: 0, tip: '紫灵芝不是平衡膳食宝塔中的日常食物类别。' },
+  { food: '🥚 鸡蛋',        answer: 3, tip: '鸡蛋属于蛋类，能提供优质蛋白质。' },
+  { food: '🍠 红薯',        answer: 1, tip: '红薯属于薯类，是谷薯类食物的一员。' }
+];
+
+/* ========== 状态 ========== */
+const state = {
+  qi: 0,
+  score: 0,
+  correct: 0,
+  remain: 180,
+  questions: [],
+  history: [],
+  started: false,
+  locked: false,
+  timer: null,
+  autoNext: null
+};
+
+/* ========== 元素与工具 ========== */
+const $ = s => document.querySelector(s);
+const pool = $('#pool');
+const tower = $('#tower');
+const trash = $('#trash');
+const layers = [...tower.querySelectorAll('.layer')];
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function resetBoard() {
+  state.qi = 0;
+  state.score = 0;
+  state.correct = 0;
+  state.remain = 180;
+  state.history = [];
+  state.locked = false;
+  clearInterval(state.timer);
+  clearTimeout(state.autoNext);
+  $('#score').textContent = '0';
+  $('#timer').textContent = '3:00';
+  $('#timer').style.color = '';
+  layers.forEach(layer => { layer.querySelector('.lcount').textContent = '0'; });
+}
+
+function start() {
+  resetBoard();
+  state.started = true;
+  state.questions = shuffle(QUESTIONS);
+  $('#start-screen').classList.add('is-hidden');
+  $('#modal').classList.remove('show');
+  setQuestion(0);
+  startTimer();
+}
+
+/* ========== 题目与食材卡 ========== */
+function setQuestion(i) {
+  const q = state.questions[i];
+  if (!q) return endGame();
+  state.locked = false;
+  $('#cur').textContent = String(i + 1);
+  $('#qbody').innerHTML = `<b style="color:var(--c-secondary);font-size:1.15em;">${q.food}</b> 应该放在宝塔的哪一层？`;
+  const progress = $('#qprogress');
+  progress.className = 'q-progress';
+  progress.textContent = '先观察食材类别，再选择答案。知识提示会在作答后出现。';
+  pool.innerHTML = '';
+  pool.appendChild(makeChip(q));
+}
+
+function makeChip(q) {
+  const chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.draggable = true;
+  chip.setAttribute('role', 'button');
+  chip.setAttribute('aria-label', `${q.food}，可拖到目标层级`);
+  chip.textContent = q.food;
+  chip.dataset.answer = q.answer;
+
+  chip.addEventListener('dragstart', e => {
+    if (state.locked) return e.preventDefault();
+    chip.classList.add('dragging');
+    e.dataTransfer.setData('text/plain', String(q.answer));
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
+  installPointerDrag(chip);
+  return chip;
+}
+
+/* 触控/手写笔：用 Pointer Events 按落点识别目标 */
+function installPointerDrag(chip) {
+  let pointerId = null;
+  let ghost = null;
+  chip.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || state.locked) return;
+    pointerId = e.pointerId;
+    chip.setPointerCapture(pointerId);
+    chip.classList.add('dragging');
+    ghost = document.createElement('div');
+    ghost.className = 'pointer-ghost';
+    ghost.textContent = chip.textContent;
+    document.body.appendChild(ghost);
+    moveGhost(e);
+    e.preventDefault();
+  });
+  chip.addEventListener('pointermove', e => {
+    if (e.pointerId !== pointerId || !ghost) return;
+    moveGhost(e);
+    e.preventDefault();
+  });
+  chip.addEventListener('pointerup', e => {
+    if (e.pointerId !== pointerId) return;
+    const hit = document.elementFromPoint(e.clientX, e.clientY);
+    finishPointerDrag();
+    const target = hit && hit.closest('.layer, #trash');
+    if (target) submitAnswer(target.classList.contains('layer') ? Number(target.dataset.layer) : 0, target);
+    e.preventDefault();
+  });
+  chip.addEventListener('pointercancel', finishPointerDrag);
+  function moveGhost(e) {
+    ghost.style.left = `${e.clientX}px`;
+    ghost.style.top = `${e.clientY}px`;
+  }
+  function finishPointerDrag() {
+    chip.classList.remove('dragging');
+    if (ghost) ghost.remove();
+    ghost = null;
+    pointerId = null;
+  }
+}
+
+/* ========== 点击、键盘与拖拽目标 ========== */
+layers.forEach(layer => {
+  layer.addEventListener('click', () => submitAnswer(Number(layer.dataset.layer), layer));
+  layer.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      submitAnswer(Number(layer.dataset.layer), layer);
+    }
+  });
+  layer.addEventListener('dragover', e => { e.preventDefault(); layer.classList.add('drag-over'); });
+  layer.addEventListener('dragleave', () => layer.classList.remove('drag-over'));
+  layer.addEventListener('drop', e => {
+    e.preventDefault();
+    layer.classList.remove('drag-over');
+    submitAnswer(Number(layer.dataset.layer), layer);
+  });
+});
+
+trash.addEventListener('click', () => submitAnswer(0, trash));
+trash.addEventListener('dragover', e => { e.preventDefault(); trash.classList.add('drag-over'); });
+trash.addEventListener('dragleave', () => trash.classList.remove('drag-over'));
+trash.addEventListener('drop', e => {
+  e.preventDefault();
+  trash.classList.remove('drag-over');
+  submitAnswer(0, trash);
+});
+
+document.addEventListener('keydown', e => {
+  if (!state.started || $('#modal').classList.contains('show')) return;
+  if (/^[0-5]$/.test(e.key)) {
+    e.preventDefault();
+    const got = Number(e.key);
+    const target = got === 0 ? trash : tower.querySelector(`[data-layer="${got}"]`);
+    submitAnswer(got, target);
+  }
+});
+
+/* ========== 判定与反馈 ========== */
+function submitAnswer(got, target) {
+  if (!state.started || state.locked) return;
+  const q = state.questions[state.qi];
+  const chip = pool.querySelector('.chip');
+  if (!q || !chip) return;
+  const isRight = q.answer === got;
+  const progress = $('#qprogress');
+
+  state.history.push({ food: q.food, got, expected: q.answer, isRight });
+  if (isRight) {
+    state.locked = true;
+    state.score += 10;
+    state.correct++;
+    chip.draggable = false;
+    chip.classList.add('correct');
+    chip.textContent = `✓ ${q.food}`;
+    progress.className = 'q-progress good';
+    progress.textContent = `回答正确！${q.tip}`;
+    flyToast(target, got === 0 ? '✅ 答对！不属于宝塔' : '+10 · 回答正确！', 'good');
+    if (got > 0) bumpCount(target);
+    state.autoNext = setTimeout(nextQuestion, 1300);
+  } else {
+    state.score = Math.max(0, state.score - 2);
+    progress.className = 'q-progress bad';
+    progress.textContent = `再想一想：${q.tip}（可以重新选择）`;
+    flyToast(target, '✗ 再试一次', 'bad');
+    target.classList.add('shake');
+    setTimeout(() => target.classList.remove('shake'), 420);
+  }
+  $('#score').textContent = String(state.score);
+}
+
+function bumpCount(layer) {
+  const count = layer.querySelector('.lcount');
+  count.textContent = String(Number(count.textContent) + 1);
+  count.style.background = 'var(--c-accent)';
+  count.style.color = 'var(--c-primary)';
+  setTimeout(() => {
+    count.style.background = 'rgba(255,255,255,.25)';
+    count.style.color = '#FFF8E7';
+  }, 650);
+}
+
+function flyToast(target, text, type) {
+  const el = document.createElement('div');
+  el.className = 'fly-toast' + (type === 'bad' ? ' bad' : '');
+  el.textContent = text;
+  document.body.appendChild(el);
+  const rect = target.getBoundingClientRect();
+  el.style.left = `${Math.max(12, rect.left + rect.width / 2 - 70)}px`;
+  el.style.top = `${Math.max(74, rect.top + 8)}px`;
+  setTimeout(() => el.remove(), 1300);
+}
+
+function nextQuestion() {
+  clearTimeout(state.autoNext);
+  state.qi++;
+  if (state.qi >= state.questions.length) endGame();
+  else setQuestion(state.qi);
+}
+
+function endGame() {
+  clearInterval(state.timer);
+  clearTimeout(state.autoNext);
+  state.started = false;
+  const total = state.questions.length || QUESTIONS.length;
+  const correctRate = Math.round(state.correct / total * 100);
+  let title, icon, text2;
+  if (state.correct === total) {
+    title = '满分破案！金牌小侦探！';
+    icon = '🏆';
+    text2 = '宝塔五层记得很牢，颁发“武平金牌美食小侦探”勋章！';
+  } else if (state.correct >= Math.ceil(total * .8)) {
+    title = '出色破案！';
+    icon = '🌟';
+    text2 = '大部分食材分得清，再练一练就完美啦！';
+  } else if (state.correct >= Math.ceil(total * .5)) {
+    title = '初步入门！';
+    icon = '🍀';
+    text2 = '宝塔层级还可以再复习一下。';
+  } else {
+    title = '继续加油！';
+    icon = '🌱';
+    text2 = '别灰心，再玩一次一定会更好！';
+  }
+  $('#m-icon').textContent = icon;
+  $('#m-title').textContent = title;
+  $('#m-text1').innerHTML = `完成 <b style="color:var(--c-secondary);font-size:18px;">${state.correct}</b> / ${total} 题，完成率 <b style="color:var(--c-secondary);">${correctRate}%</b>`;
+  $('#m-score').textContent = `${state.score} 分`;
+  $('#m-text2').textContent = text2;
+  $('#modal').classList.add('show');
+}
+
+function startTimer() {
+  state.timer = setInterval(() => {
+    state.remain--;
+    const m = Math.floor(state.remain / 60);
+    const s = state.remain % 60;
+    $('#timer').textContent = `${m}:${String(s).padStart(2, '0')}`;
+    if (state.remain <= 0) endGame();
+    else if (state.remain <= 30) $('#timer').style.color = '#FFD45E';
+  }, 1000);
+}
+
+$('#start-game').addEventListener('click', start);
+$('#restart-btn').addEventListener('click', () => {
+  $('#modal').classList.remove('show');
+  $('#start-screen').classList.remove('is-hidden');
+});
+</script>
+</body>
+</html>

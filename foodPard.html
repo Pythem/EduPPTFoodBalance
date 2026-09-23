@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>巧配客家一日健康餐 · 武平美食小侦探</title>
+<style>
+  :root {
+    --c-primary: #2E6B4F;
+    --c-secondary: #C94B1F;
+    --c-accent: #F5A623;
+    --c-card: #FFFFFF;
+    --c-text: #2C2C2C;
+    --c-shadow: rgba(46,107,79,.16);
+    --staple: #E8B84B;
+    --protein: #C94B1F;
+    --veggie: #4F9D5C;
+    --drink: #4F8BB3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #FFF8E7 0%, #FFEFD0 100%);
+    color: var(--c-text);
+    overflow: hidden;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ============================================================
+     布局：顶部纯展示 / 中部食材池（最大） / 底部操作
+     ============================================================ */
+  .game {
+    display: grid;
+    grid-template-rows: 52px 60px 90px minmax(0, 1fr) 82px;
+    height: 100vh;
+    gap: 7px;
+    padding: 7px 14px 9px;
+  }
+
+  /* ========== 顶部标题（字体放大） ========== */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #2E6B4F, #1F4A36);
+    color: #FFF8E7;
+    border-radius: 12px;
+    padding: 0 24px;
+    box-shadow: 0 4px 12px var(--c-shadow);
+  }
+  .header .title {
+    font-size: clamp(20px, 1.6vw, 26px);
+    font-weight: 900;
+    letter-spacing: 2px;
+  }
+  .header .title .stage-badge {
+    background: var(--c-accent);
+    color: var(--c-primary);
+    font-size: 14px;
+    padding: 3px 12px;
+    border-radius: 11px;
+    margin-left: 10px;
+    font-weight: 800;
+    vertical-align: middle;
+  }
+  .header .subtitle {
+    font-size: clamp(14px, 1.05vw, 17px);
+    opacity: .92;
+    font-weight: 600;
+  }
+
+  /* ========== 四大标准栏（字体放大） ========== */
+  .standards-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .std-card {
+    background: var(--c-card);
+    border-radius: 11px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 3px 10px rgba(46,107,79,.08);
+    border: 2px solid #EFE3C8;
+    transition: all .35s;
+    position: relative;
+    overflow: hidden;
+  }
+  .std-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 5px;
+    background: #CFCFCF;
+    transition: background .35s;
+  }
+  .std-card.pass { border-color: rgba(76,175,80,.5); background: #F2FBF3; }
+  .std-card.pass::before { background: #4CAF50; }
+  .std-card.fail { border-color: rgba(201,75,31,.4); background: #FDF3EF; }
+  .std-card.fail::before { background: var(--c-secondary); }
+  .std-icon {
+    font-size: 24px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFF3E0;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .std-info { min-width: 0; flex: 1; }
+  .std-name {
+    font-size: clamp(15px, 1.15vw, 19px);
+    font-weight: 800;
+    color: var(--c-primary);
+    white-space: nowrap;
+    letter-spacing: .5px;
+  }
+  .std-status {
+    font-size: clamp(12px, .9vw, 14px);
+    color: #888;
+    margin-top: 2px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .std-card.pass .std-status { color: #2E7D32; font-weight: 800; }
+  .std-card.fail .std-status { color: var(--c-secondary); font-weight: 800; }
+  .std-check {
+    font-size: 24px;
+    font-weight: 900;
+    opacity: 0;
+    transform: scale(.4);
+    transition: all .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .std-card.pass .std-check { opacity: 1; transform: scale(1); color: #4CAF50; }
+  .std-card.fail .std-check { opacity: 1; transform: scale(1); color: var(--c-secondary); }
+
+  /* ========== 餐盘区（横向 3 段，字体放大） ========== */
+  .plate-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr;
+    gap: 10px;
+    background: var(--c-card);
+    border-radius: 14px;
+    box-shadow: 0 5px 16px var(--c-shadow);
+    padding: 8px 14px;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .plate-seg {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-radius: 10px;
+    padding: 6px 10px;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .plate-seg[data-cat="staple"] { background: rgba(232,184,75,.18); }
+  .plate-seg[data-cat="protein"] { background: rgba(201,75,31,.1); }
+  .plate-seg[data-cat="veggie"] { background: rgba(79,157,92,.12); }
+
+  .plate-seg-label {
+    font-size: clamp(14px, 1.05vw, 17px);
+    font-weight: 900;
+    color: var(--c-primary);
+    letter-spacing: .5px;
+    flex-shrink: 0;
+    padding-left: 2px;
+  }
+  .plate-seg-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    overflow-y: auto;
+    min-height: 0;
+    flex: 1;
+    align-content: flex-start;
+  }
+  .plate-seg-empty {
+    font-size: clamp(12px, .92vw, 14px);
+    color: #B8A882;
+    font-style: italic;
+    font-weight: 600;
+    padding: 3px 5px;
+  }
+  .plate-seg-item {
+    background: #FFFFFF;
+    border-radius: 7px;
+    padding: 3px 9px;
+    font-size: clamp(13px, 1vw, 15px);
+    font-weight: 700;
+    color: var(--c-text);
+    box-shadow: 0 1px 3px rgba(46,107,79,.13);
+    border: 1px solid #EFE3C8;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    animation: chipPop .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .plate-seg-item .emoji { font-size: 1.15em; }
+  @keyframes chipPop {
+    from { opacity: 0; transform: scale(.7); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* ========== 食材池（主操作区，卡片自动拉伸填满） ========== */
+  .pool-panel {
+    background: var(--c-card);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px var(--c-shadow);
+    padding: 10px 16px 12px;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 8px;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .pool-heading {
+    color: var(--c-primary);
+    font-size: clamp(18px, 1.35vw, 22px);
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pool-heading small {
+    font-size: clamp(13px, .95vw, 15px);
+    color: #8B5A2B;
+    font-weight: 700;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: #FFF9EC;
+    border: 2px solid #E8D9B5;
+    border-radius: 18px;
+    padding: 7px 26px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: clamp(15px, 1.1vw, 18px);
+    font-weight: 800;
+    color: #8B5A2B;
+    transition: all .18s;
+  }
+  .filter-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+  .filter-btn.active {
+    background: var(--c-primary);
+    color: #FFF8E7;
+    border-color: var(--c-primary);
+    box-shadow: 0 3px 10px rgba(46,107,79,.28);
+  }
+
+  /* 关键：卡片自动拉伸填满容器，不留空白 */
+  .pool-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(70px, 1fr);
+    gap: 8px;
+    align-content: stretch;
+    overflow-y: auto;
+    padding: 2px;
+    min-height: 0;
+  }
+  .ing-card {
+    background: linear-gradient(145deg, #FFFDF7, #FFF6E2);
+    border: 2px solid #E8C99B;
+    border-radius: 12px;
+    padding: 8px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all .15s;
+    box-shadow: 0 3px 8px rgba(46,107,79,.08);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .ing-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--c-primary);
+    box-shadow: 0 6px 16px rgba(46,107,79,.2);
+  }
+  .ing-card:active { transform: translateY(1px) scale(.98); }
+  .ing-card.selected {
+    background: linear-gradient(145deg, #E8F5EB, #D4EDD9);
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 3px rgba(46,107,79,.22), 0 5px 12px rgba(46,107,79,.22);
+  }
+  .ing-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    background: var(--c-primary);
+    color: #FFF8E7;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+  }
+  .ing-emoji { font-size: clamp(28px, 2.2vw, 36px); line-height: 1; }
+  .ing-name {
+    font-size: clamp(14px, 1.05vw, 17px);
+    font-weight: 800;
+    color: var(--c-text);
+    line-height: 1.15;
+    word-break: break-all;
+  }
+
+  /* ========== 底部：理由 + 按钮 ========== */
+  .bottom-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .reason-panel {
+    background: var(--c-card);
+    border-radius: 14px;
+    box-shadow: 0 4px 12px var(--c-shadow);
+    padding: 8px 14px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .reason-title {
+    font-size: clamp(15px, 1.1vw, 18px);
+    font-weight: 900;
+    color: var(--c-primary);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .reason-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .reason-btn {
+    background: #FFF9EC;
+    border: 2px solid #E8D9B5;
+    border-radius: 9px;
+    padding: 7px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: clamp(12px, .92vw, 14px);
+    font-weight: 700;
+    color: #6B5B3B;
+    transition: all .18s;
+    text-align: left;
+    line-height: 1.25;
+  }
+  .reason-btn .opt-key {
+    display: inline-block;
+    background: var(--c-primary);
+    color: #FFF8E7;
+    font-weight: 900;
+    border-radius: 5px;
+    padding: 0 6px;
+    margin-right: 5px;
+    font-size: .95em;
+  }
+  .reason-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+  .reason-btn.selected {
+    background: linear-gradient(145deg, #2E6B4F, #1F4A36);
+    color: #FFF8E7;
+    border-color: var(--c-primary);
+    box-shadow: 0 3px 10px rgba(46,107,79,.35);
+  }
+  .reason-btn.selected .opt-key { background: var(--c-accent); color: var(--c-primary); }
+
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .btn {
+    border: none;
+    padding: 0 32px;
+    border-radius: 26px;
+    font-family: inherit;
+    font-size: clamp(15px, 1.1vw, 18px);
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    cursor: pointer;
+    transition: all .18s;
+    box-shadow: 0 4px 0 rgba(0,0,0,.16), 0 6px 16px rgba(0,0,0,.1);
+    white-space: nowrap;
+  }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.16); }
+  .btn-primary {
+    background: linear-gradient(145deg, #2E6B4F, #1F4A36);
+    color: #FFF8E7;
+  }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-secondary {
+    background: #FFFFFF;
+    color: var(--c-secondary);
+    border: 2px solid #E8C99B;
+    box-shadow: 0 4px 0 #D9C39A, 0 6px 16px rgba(0,0,0,.08);
+  }
+  .btn-secondary:hover { background: #FFF3E0; }
+
+  /* ========== 弹窗 ========== */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(23,50,38,.78);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    padding: 20px;
+    backdrop-filter: blur(6px);
+  }
+  .modal.show { display: flex; animation: fadeIn .3s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-card {
+    background: var(--c-card);
+    border-radius: 22px;
+    padding: 26px 36px 24px;
+    text-align: center;
+    max-width: 660px;
+    width: 100%;
+    box-shadow: 0 24px 70px rgba(0,0,0,.35);
+    animation: popIn .4s cubic-bezier(.34,1.56,.64,1);
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  @keyframes popIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+  .modal-icon { font-size: 62px; line-height: 1; margin-bottom: 4px; }
+  .modal-title {
+    font-size: clamp(22px, 1.8vw, 30px);
+    font-weight: 900;
+    color: var(--c-primary);
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+  .modal-subtitle {
+    font-size: clamp(12px, .95vw, 15px);
+    color: #7A6B4D;
+    margin-bottom: 12px;
+  }
+  .modal-score {
+    font-size: clamp(40px, 3.4vw, 60px);
+    font-weight: 900;
+    color: var(--c-secondary);
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: 2px;
+  }
+  .modal-score small { font-size: .4em; color: #B8A882; margin-left: 6px; }
+  .modal-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 14px 0;
+    text-align: left;
+  }
+  .modal-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #FFF9EC;
+    border: 2px solid #F0E0C8;
+    font-size: clamp(12px, .92vw, 14px);
+    font-weight: 700;
+    color: #6B5B3B;
+  }
+  .modal-detail-item.pass { background: #F2FBF3; border-color: rgba(76,175,80,.4); color: #2E7D32; }
+  .modal-detail-item.fail { background: #FDF3EF; border-color: rgba(201,75,31,.35); color: var(--c-secondary); }
+  .modal-detail-item .dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 900;
+    color: #FFF;
+    flex-shrink: 0;
+  }
+  .modal-detail-item.pass .dot { background: #4CAF50; }
+  .modal-detail-item.fail .dot { background: var(--c-secondary); }
+  .modal-tip {
+    font-size: clamp(13px, 1vw, 16px);
+    color: #7A6B4D;
+    line-height: 1.55;
+    margin: 10px 0;
+    padding: 10px 16px;
+    background: #FFF9EC;
+    border-radius: 12px;
+    border-left: 5px solid var(--c-accent);
+    text-align: left;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+  .modal-actions .btn { padding: 11px 30px; font-size: clamp(14px, 1vw, 16px); }
+
+  /* ========== 彩带 ========== */
+  .confetti {
+    position: fixed;
+    width: 10px; height: 10px;
+    pointer-events: none;
+    z-index: 350;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0); }
+    100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
+  }
+
+  /* ========== Toast ========== */
+  .toast {
+    position: fixed;
+    top: 68px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--c-primary);
+    color: #FFF8E7;
+    padding: 11px 26px;
+    border-radius: 22px;
+    font-weight: 800;
+    font-size: clamp(14px, 1.05vw, 17px);
+    box-shadow: 0 8px 24px rgba(46,107,79,.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s;
+    z-index: 400;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.warn { background: var(--c-secondary); box-shadow: 0 8px 24px rgba(201,75,31,.35); }
+
+  /* ========== 响应式 ========== */
+  @media (max-height: 800px) {
+    .game { grid-template-rows: 46px 54px 82px minmax(0, 1fr) 74px; gap: 6px; padding: 6px 12px 8px; }
+    .std-icon { width: 34px; height: 34px; font-size: 20px; }
+    .std-check { font-size: 20px; }
+    .ing-emoji { font-size: 26px; }
+    .btn { padding: 0 26px; }
+  }
+  @media (max-width: 1100px) {
+    .pool-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+
+/* ===== v2：放大“我的运动日午餐”区域，取消该区域内部滚动 ===== */
+.game {
+  grid-template-rows: 66px 60px 152px auto 120px;
+}
+.plate-area {
+  grid-template-rows: 34px minmax(0, auto);
+  padding: 10px 12px 14px;
+}
+.plate-area::before {
+  font-size: clamp(19px, 1.24vw, 22px);
+}
+.plate-seg {
+  min-height: 108px;
+  padding: 10px 12px;
+}
+.plate-seg-label {
+  font-size: clamp(18px, 1.12vw, 20px);
+}
+.plate-seg-items {
+  overflow: visible;
+  gap: 8px;
+  align-content: flex-start;
+  padding-bottom: 2px;
+}
+.plate-seg-empty {
+  font-size: clamp(16px, 1vw, 18px);
+  padding: 6px 3px;
+}
+.plate-seg-item {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: clamp(16px, 1vw, 18px);
+}
+
+@media (max-width: 1366px) {
+  .game {
+    grid-template-rows: 62px 56px 146px auto 114px;
+    gap: 8px;
+    padding: 9px 12px 10px;
+  }
+  .plate-area {
+    grid-template-rows: 32px minmax(0, auto);
+    padding: 9px 10px 12px;
+  }
+  .plate-area::before { font-size: 18px; }
+  .plate-seg {
+    min-height: 100px;
+    padding: 8px 10px;
+  }
+  .plate-seg-label { font-size: 17px; }
+  .plate-seg-items { gap: 6px; }
+  .plate-seg-item { min-height: 32px; font-size: 15px; }
+}
+
+</style>
+
+
+<style id="classroom-layout-v2">
+  /* ============================================================
+     课堂版视觉优化 V2
+     目标：信息层级更清晰、字号更适合投影、食材卡不再被强行拉伸
+     ============================================================ */
+  :root {
+    --page-max: 1680px;
+    --line-soft: #E9DFC9;
+    --surface-soft: #FFFCF5;
+  }
+
+  body {
+    overflow: auto;
+    background:
+      radial-gradient(circle at 12% 10%, rgba(245,166,35,.10), transparent 24%),
+      radial-gradient(circle at 88% 88%, rgba(46,107,79,.08), transparent 26%),
+      linear-gradient(135deg, #FFF9EA 0%, #FFF1D7 100%);
+  }
+
+  .game {
+    width: min(100%, var(--page-max));
+    min-height: 100vh;
+    height: auto;
+    margin: 0 auto;
+    padding: 10px 16px 12px;
+    gap: 10px;
+    grid-template-rows: 66px 60px 136px auto 154px;
+    align-content: center;
+  }
+
+  /* 顶部：只承担关卡和任务说明，不再挤压字号 */
+  .header {
+    border-radius: 15px;
+    padding: 0 22px;
+    box-shadow: 0 5px 16px rgba(31,74,54,.16);
+  }
+  .header .title {
+    font-size: clamp(24px, 1.55vw, 30px);
+    letter-spacing: 1px;
+    line-height: 1.15;
+  }
+  .header .title .stage-badge {
+    font-size: clamp(14px, .9vw, 16px);
+    padding: 4px 11px;
+    margin-left: 10px;
+    border-radius: 999px;
+  }
+  .header .subtitle {
+    font-size: clamp(16px, 1vw, 18px);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* 四项标准降权：从四张“大卡片”收成一条任务进度栏 */
+  .standards-bar {
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(232,217,181,.75);
+    border-radius: 14px;
+    padding: 5px 7px;
+    gap: 6px;
+    box-shadow: 0 4px 14px rgba(46,107,79,.08);
+  }
+  .std-card {
+    min-width: 0;
+    padding: 5px 10px;
+    gap: 8px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    box-shadow: none;
+    background: transparent;
+  }
+  .std-card::before { display: none; }
+  .std-card.pass {
+    background: #F1F9F3;
+    border-color: rgba(76,175,80,.24);
+  }
+  .std-card.fail {
+    background: #FFF8F3;
+    border-color: rgba(201,75,31,.18);
+  }
+  .std-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 19px;
+    background: #FFF3E0;
+  }
+  .std-name {
+    font-size: clamp(16px, 1.03vw, 18px);
+    letter-spacing: 0;
+  }
+  .std-status {
+    margin-top: 1px;
+    font-size: clamp(14px, .9vw, 16px);
+    line-height: 1.18;
+  }
+  .std-check {
+    font-size: 21px;
+    width: 24px;
+    text-align: center;
+  }
+
+  /* 餐盘成为第二视觉中心：标题 + 1:1:2 的清晰比例区 */
+  .plate-area {
+    grid-template-columns: 1fr 1fr 2fr;
+    grid-template-rows: 28px minmax(0, 1fr);
+    gap: 8px 10px;
+    padding: 10px 12px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(232,217,181,.68);
+    box-shadow: 0 5px 16px rgba(46,107,79,.10);
+    background: rgba(255,255,255,.96);
+  }
+  .plate-area::before {
+    content: '🍽️ 我的运动日午餐';
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    color: var(--c-primary);
+    font-size: clamp(18px, 1.2vw, 21px);
+    font-weight: 900;
+    letter-spacing: .4px;
+  }
+  .plate-seg {
+    grid-row: 2;
+    gap: 7px;
+    padding: 9px 12px;
+    border-radius: 11px;
+    border: 1px solid rgba(255,255,255,.8);
+  }
+  .plate-seg-label {
+    font-size: clamp(17px, 1.08vw, 19px);
+    letter-spacing: 0;
+  }
+  .plate-seg-items {
+    gap: 7px;
+    align-items: flex-start;
+  }
+  .plate-seg-empty {
+    padding: 5px 3px;
+    font-size: clamp(15px, .95vw, 17px);
+    font-style: normal;
+  }
+  .plate-seg-item {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: clamp(16px, 1vw, 18px);
+    gap: 5px;
+    box-shadow: 0 2px 5px rgba(46,107,79,.10);
+  }
+  .plate-seg-item .emoji { font-size: 1.25em; }
+
+  /* 食材池：标题和分类同一行，卡片采用合理固定尺度，不再纵向硬撑满 */
+  .pool-panel {
+    grid-template-columns: minmax(240px, 1fr) auto;
+    grid-template-rows: 48px auto;
+    gap: 10px 14px;
+    padding: 10px 12px 12px;
+    border: 1px solid rgba(232,217,181,.68);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(46,107,79,.10);
+    overflow: visible;
+  }
+  .pool-heading {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: clamp(20px, 1.3vw, 23px);
+    letter-spacing: .4px;
+    justify-content: flex-start;
+    gap: 14px;
+  }
+  .pool-heading small {
+    font-size: clamp(14px, .9vw, 16px);
+    color: #8B6A3E;
+  }
+  .filter-bar {
+    grid-column: 2;
+    grid-row: 1;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .filter-btn {
+    min-width: 82px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: clamp(16px, 1vw, 18px);
+    line-height: 1;
+  }
+  .pool-grid {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: clamp(76px, 8.5vh, 96px);
+    gap: 10px;
+    align-content: start;
+    overflow: visible;
+    padding: 0;
+  }
+  .ing-card {
+    padding: 8px 10px;
+    gap: 7px;
+    border: 1.5px solid #E7CC9F;
+    border-radius: 12px;
+    box-shadow: 0 2px 7px rgba(46,107,79,.07);
+    background: linear-gradient(145deg, #FFFDF8, #FFF8E9);
+  }
+  .ing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(46,107,79,.16);
+  }
+  .ing-card.selected {
+    box-shadow: 0 0 0 2px rgba(46,107,79,.16), 0 5px 12px rgba(46,107,79,.14);
+  }
+  .ing-card.selected::after {
+    top: 7px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+  .ing-emoji {
+    font-size: clamp(36px, 2.25vw, 44px);
+  }
+  .ing-name {
+    font-size: clamp(17px, 1.05vw, 19px);
+    line-height: 1.2;
+    word-break: keep-all;
+  }
+
+  /* 推荐理由：改成 2×2；操作按钮单独成列，课堂上更容易读和点 */
+  .bottom-bar {
+    grid-template-columns: minmax(0, 1fr) 210px;
+    gap: 12px;
+  }
+  .reason-panel {
+    padding: 10px 12px;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 12px;
+    border: 1px solid rgba(232,217,181,.68);
+    border-radius: 15px;
+    box-shadow: 0 4px 14px rgba(46,107,79,.09);
+  }
+  .reason-title {
+    font-size: clamp(18px, 1.16vw, 21px);
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+  .reason-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .reason-btn {
+    min-height: 56px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: clamp(16px, 1vw, 18px);
+    line-height: 1.28;
+    display: flex;
+    align-items: center;
+  }
+  .reason-btn .opt-key {
+    flex: 0 0 auto;
+    min-width: 28px;
+    text-align: center;
+    padding: 2px 7px;
+    margin-right: 8px;
+    border-radius: 6px;
+  }
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn {
+    min-height: 0;
+    flex: 1;
+    padding: 0 18px;
+    border-radius: 16px;
+    font-size: clamp(17px, 1.05vw, 19px);
+  }
+
+  /* 弹窗同步提高课堂可读性 */
+  .modal-card { max-width: 720px; }
+  .modal-subtitle,
+  .modal-detail-item { font-size: clamp(15px, .95vw, 17px); }
+  .modal-tip { font-size: clamp(15px, 1vw, 17px); }
+
+  /* 常见笔记本 / 课堂投影高度：压缩空隙但不牺牲正文可读性 */
+  @media (max-height: 850px) {
+    .game {
+      padding: 6px 12px 8px;
+      gap: 6px;
+      grid-template-rows: 54px 52px 108px auto 126px;
+      align-content: start;
+    }
+    .header { border-radius: 11px; padding: 0 18px; }
+    .header .title { font-size: clamp(21px, 1.5vw, 26px); }
+    .header .title .stage-badge { font-size: 13px; padding: 3px 9px; }
+    .header .subtitle { font-size: 15px; }
+
+    .standards-bar { padding: 3px 5px; gap: 4px; }
+    .std-card { padding: 3px 7px; gap: 5px; }
+    .std-icon { width: 26px; height: 26px; font-size: 17px; }
+    .std-name { font-size: 16px; }
+    .std-status { font-size: 13px; }
+    .std-check { font-size: 18px; width: 18px; }
+
+    .plate-area {
+      grid-template-rows: 22px minmax(0, 1fr);
+      padding: 6px 9px 8px;
+      gap: 5px 8px;
+    }
+    .plate-area::before { font-size: 17px; }
+    .plate-seg { padding: 5px 8px; gap: 4px; }
+    .plate-seg-label { font-size: 15px; }
+    .plate-seg-item { padding: 3px 7px; font-size: 15px; }
+    .plate-seg-empty { font-size: 13px; padding: 2px; }
+
+    .pool-panel {
+      grid-template-rows: 38px auto;
+      padding: 6px 9px 8px;
+      gap: 6px 10px;
+    }
+    .pool-heading { font-size: 18px; gap: 10px; }
+    .pool-heading small { font-size: 12px; }
+    .filter-btn { min-width: 68px; padding: 6px 14px; font-size: 16px; }
+    .pool-grid { grid-auto-rows: 70px; gap: 7px; }
+    .ing-card { gap: 4px; padding: 5px 8px; }
+    .ing-emoji { font-size: 30px; }
+    .ing-name { font-size: 16px; }
+    .ing-card.selected::after { width: 20px; height: 20px; font-size: 12px; top: 5px; right: 6px; }
+
+    .bottom-bar { grid-template-columns: minmax(0, 1fr) 175px; gap: 8px; }
+    .reason-panel { grid-template-columns: 170px minmax(0, 1fr); padding: 7px 9px; gap: 8px; }
+    .reason-title { font-size: 16px; }
+    .reason-options { gap: 6px; }
+    .reason-btn { min-height: 45px; padding: 6px 9px; font-size: 15px; }
+    .reason-btn .opt-key { min-width: 24px; padding: 1px 5px; margin-right: 6px; }
+    .action-buttons { gap: 7px; }
+    .btn { font-size: 15px; border-radius: 13px; }
+  }
+
+  @media (max-width: 1180px) {
+    .game { width: 100%; }
+    .header .title { letter-spacing: .4px; }
+    .pool-panel {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+    }
+    .pool-heading { grid-column: 1; grid-row: 1; }
+    .filter-bar { grid-column: 1; grid-row: 2; justify-content: flex-start; }
+    .pool-grid { grid-column: 1; grid-row: 3; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .reason-panel { grid-template-columns: 155px minmax(0,1fr); }
+  }
+
+  @media (max-width: 900px) {
+    .game { min-width: 760px; }
+  }
+</style>
+
+
+
+<style id="classroom-layout-v3-fix">
+  /* ============================================================
+     V3 修正：已选午餐区允许自适应增高，取消内部滚动与裁切
+     ============================================================ */
+  .game {
+    grid-template-rows: 66px 60px auto auto 120px;
+  }
+
+  .plate-area {
+    grid-template-rows: 34px auto;
+    overflow: visible;
+    min-height: 150px;
+    padding: 10px 12px 12px;
+  }
+
+  .plate-seg {
+    min-height: 106px;
+    height: auto;
+    overflow: visible;
+    align-self: stretch;
+    border: 1px solid rgba(226, 207, 170, .95);
+  }
+
+  .plate-seg-items {
+    overflow: visible;
+    flex: 0 0 auto;
+    min-height: 34px;
+    max-height: none;
+  }
+
+  .plate-seg-item {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1366px) {
+    .game {
+      grid-template-rows: 62px 56px auto auto 114px;
+    }
+    .plate-area {
+      min-height: 140px;
+      grid-template-rows: 32px auto;
+    }
+    .plate-seg {
+      min-height: 98px;
+    }
+  }
+</style>
+
+</head>
+<body>
+
+<div class="game">
+  <!-- 顶部：标题 -->
+  <div class="header">
+    <div class="title">🏆 第三关 · 巧配客家一日健康餐<span class="stage-badge">武平美食小侦探</span></div>
+    <div class="subtitle">为五年级同学设计一份运动日午餐</div>
+  </div>
+
+  <!-- 四大标准（纯展示） -->
+  <div class="standards-bar">
+    <div class="std-card" id="std-structure">
+      <div class="std-icon">📐</div>
+      <div class="std-info">
+        <div class="std-name">餐盘均衡</div>
+        <div class="std-status" id="status-structure">主食 1/4 · 肉豆 1/4 · 蔬果 1/2</div>
+      </div>
+      <div class="std-check" id="check-structure">✗</div>
+    </div>
+    <div class="std-card" id="std-local">
+      <div class="std-icon">🏮</div>
+      <div class="std-info">
+        <div class="std-name">本土特色</div>
+        <div class="std-status" id="status-local">至少 2 种武平特产</div>
+      </div>
+      <div class="std-check" id="check-local">✗</div>
+    </div>
+    <div class="std-card" id="std-healthy">
+      <div class="std-icon">🥗</div>
+      <div class="std-info">
+        <div class="std-name">健康烹饪</div>
+        <div class="std-status" id="status-healthy">蒸 · 煮 · 清炒 · 炖汤</div>
+      </div>
+      <div class="std-check" id="check-healthy">✗</div>
+    </div>
+    <div class="std-card" id="std-reason">
+      <div class="std-icon">💡</div>
+      <div class="std-info">
+        <div class="std-name">推荐理由</div>
+        <div class="std-status" id="status-reason">说明如何赋能运动</div>
+      </div>
+      <div class="std-check" id="check-reason">✗</div>
+    </div>
+  </div>
+
+  <!-- 餐盘（横向 3 段，纯展示） -->
+  <div class="plate-area" id="plate">
+    <div class="plate-seg" data-cat="staple">
+      <div class="plate-seg-label">🍚 主食 · 1/4</div>
+      <div class="plate-seg-items" id="section-staple"></div>
+    </div>
+    <div class="plate-seg" data-cat="protein">
+      <div class="plate-seg-label">🍗 肉豆 · 1/4</div>
+      <div class="plate-seg-items" id="section-protein"></div>
+    </div>
+    <div class="plate-seg" data-cat="veggie">
+      <div class="plate-seg-label">🥦 蔬果 · 1/2</div>
+      <div class="plate-seg-items" id="section-veggie"></div>
+    </div>
+  </div>
+
+  <!-- 食材池（主操作区） -->
+  <div class="pool-panel">
+    <div class="pool-heading">
+      🥘 午餐食材库
+      <small>找出适合运动日午餐的食材</small>
+    </div>
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="staple">主食</button>
+      <button class="filter-btn" data-filter="protein">肉豆</button>
+      <button class="filter-btn" data-filter="veggie">蔬果</button>
+      <button class="filter-btn" data-filter="drink">饮品</button>
+    </div>
+    <div class="pool-grid" id="poolGrid"></div>
+  </div>
+
+  <!-- 底部：理由 + 按钮 -->
+  <div class="bottom-bar">
+    <div class="reason-panel">
+      <div class="reason-title">🎯 为什么这样搭配？</div>
+      <div class="reason-options" id="reasonOptions">
+        <button class="reason-btn" data-reason="A">
+          <span class="opt-key">A</span>主食补充运动消耗的能量
+        </button>
+        <button class="reason-btn" data-reason="B">
+          <span class="opt-key">B</span>肉豆修复运动后受损的肌肉
+        </button>
+        <button class="reason-btn" data-reason="C">
+          <span class="opt-key">C</span>蔬果增强抵抗力、促进恢复
+        </button>
+        <button class="reason-btn" data-reason="D">
+          <span class="opt-key">D</span>以上都是运动日午餐的关键
+        </button>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-secondary" id="resetBtn">🔄 重新搭配</button>
+      <button class="btn btn-primary" id="submitBtn">✅ 完成配餐</button>
+    </div>
+  </div>
+</div>
+
+<!-- 结果弹窗 -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-icon" id="mIcon">🏅</div>
+    <div class="modal-title" id="mTitle">金牌配餐师！</div>
+    <div class="modal-subtitle" id="mSubtitle">你的运动日午餐搭配非常出色！</div>
+    <div class="modal-score"><span id="mScore">100</span><small>分</small></div>
+    <div class="modal-details" id="mDetails"></div>
+    <div class="modal-tip" id="mTip"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="mReset">🔄 再搭一次</button>
+      <button class="btn btn-primary" id="mClose">✅ 完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   食材库（50+ 种，含干扰项，界面不显示任何提示）
+   ============================================================ */
+const INGREDIENTS = [
+  /* 主食类 16 */
+  { id: 'banji',      name: '簸箕板',        emoji: '🥟', cat: 'staple',  wuping: true,  healthy: true },
+  { id: 'zhenzhu',    name: '珍珠粉',        emoji: '🍜', cat: 'staple',  wuping: true,  healthy: true },
+  { id: 'wupingmi',   name: '武平米粉',      emoji: '🍲', cat: 'staple',  wuping: true,  healthy: true },
+  { id: 'huangban',   name: '客家黄粄',      emoji: '🟡', cat: 'staple',  wuping: true,  healthy: true },
+  { id: 'rice',       name: '白米饭',        emoji: '🍚', cat: 'staple',  wuping: false, healthy: true },
+  { id: 'sweetpotato',name: '红薯',          emoji: '🍠', cat: 'staple',  wuping: false, healthy: true },
+  { id: 'corn',       name: '玉米',          emoji: '🌽', cat: 'staple',  wuping: false, healthy: true },
+  { id: 'oats',       name: '燕麦粥',        emoji: '🥣', cat: 'staple',  wuping: false, healthy: true },
+  { id: 'wholewheat', name: '全麦馒头',      emoji: '🍞', cat: 'staple',  wuping: false, healthy: true },
+  { id: 'potato',     name: '土豆',          emoji: '🥔', cat: 'staple',  wuping: false, healthy: true },
+  { id: 'taro',       name: '芋头',          emoji: '🥔', cat: 'staple',  wuping: false, healthy: true },
+  { id: 'noodles',    name: '清汤面',        emoji: '🍝', cat: 'staple',  wuping: false, healthy: true },
+  { id: 'youtiao',    name: '油条',          emoji: '🥖', cat: 'staple',  wuping: false, healthy: false },
+  { id: 'fries',      name: '炸薯条',        emoji: '🍟', cat: 'staple',  wuping: false, healthy: false },
+  { id: 'instant',    name: '方便面',        emoji: '🍜', cat: 'staple',  wuping: false, healthy: false },
+  { id: 'cake',       name: '奶油蛋糕',      emoji: '🍰', cat: 'staple',  wuping: false, healthy: false },
+
+  /* 肉豆类 16 */
+  { id: 'xiangdongji',name: '清炖象洞鸡',    emoji: '🍗', cat: 'protein', wuping: true,  healthy: true },
+  { id: 'niangdoufu', name: '客家酿豆腐',    emoji: '🍢', cat: 'protein', wuping: true,  healthy: true },
+  { id: 'baizhanji',  name: '武平白斩鸡',    emoji: '🐔', cat: 'protein', wuping: true,  healthy: true },
+  { id: 'heyujian',   name: '武平河鱼',      emoji: '🐟', cat: 'protein', wuping: true,  healthy: true },
+  { id: 'steamfish',  name: '清蒸鱼',        emoji: '🐠', cat: 'protein', wuping: false, healthy: true },
+  { id: 'shrimp',     name: '水煮虾',        emoji: '🦐', cat: 'protein', wuping: false, healthy: true },
+  { id: 'chickenbreast',name:'鸡胸肉',       emoji: '🍖', cat: 'protein', wuping: false, healthy: true },
+  { id: 'egg',        name: '水煮蛋',        emoji: '🥚', cat: 'protein', wuping: false, healthy: true },
+  { id: 'tofu',       name: '清蒸豆腐',      emoji: '🧊', cat: 'protein', wuping: false, healthy: true },
+  { id: 'soybean',    name: '黄豆',          emoji: '🫘', cat: 'protein', wuping: false, healthy: true },
+  { id: 'beef',       name: '瘦牛肉',        emoji: '🐮', cat: 'protein', wuping: false, healthy: true },
+  { id: 'friedchicken',name:'炸鸡块',        emoji: '🍗', cat: 'protein', wuping: false, healthy: false },
+  { id: 'braisedpork',name: '红烧肉',        emoji: '🥓', cat: 'protein', wuping: false, healthy: false },
+  { id: 'bacon',      name: '腊肉',          emoji: '🥓', cat: 'protein', wuping: false, healthy: false },
+  { id: 'sausage',    name: '香肠',          emoji: '🌭', cat: 'protein', wuping: false, healthy: false },
+  { id: 'friedfish',  name: '炸鱼排',        emoji: '🐟', cat: 'protein', wuping: false, healthy: false },
+
+  /* 蔬果类 18 */
+  { id: 'shishu',     name: '清炒时蔬',      emoji: '🥬', cat: 'veggie',  wuping: true,  healthy: true },
+  { id: 'baixiangguo',name: '武平百香果',    emoji: '🍊', cat: 'veggie',  wuping: true,  healthy: true },
+  { id: 'jiecai',     name: '武平芥菜',      emoji: '🥬', cat: 'veggie',  wuping: true,  healthy: true },
+  { id: 'qicheng',    name: '武平脐橙',      emoji: '🍊', cat: 'veggie',  wuping: true,  healthy: true },
+  { id: 'xianggu',    name: '武平香菇',      emoji: '🍄', cat: 'veggie',  wuping: true,  healthy: true },
+  { id: 'sungan',     name: '武平笋干',      emoji: '🎋', cat: 'veggie',  wuping: true,  healthy: true },
+  { id: 'broccoli',   name: '西兰花',        emoji: '🥦', cat: 'veggie',  wuping: false, healthy: true },
+  { id: 'carrot',     name: '胡萝卜',        emoji: '🥕', cat: 'veggie',  wuping: false, healthy: true },
+  { id: 'tomato',     name: '番茄',          emoji: '🍅', cat: 'veggie',  wuping: false, healthy: true },
+  { id: 'spinach',    name: '菠菜',          emoji: '🥬', cat: 'veggie',  wuping: false, healthy: true },
+  { id: 'cabbage',    name: '白菜',          emoji: '🥬', cat: 'veggie',  wuping: false, healthy: true },
+  { id: 'woodear',    name: '木耳',          emoji: '🍄', cat: 'veggie',  wuping: false, healthy: true },
+  { id: 'apple',      name: '苹果',          emoji: '🍎', cat: 'veggie',  wuping: false, healthy: true },
+  { id: 'banana',     name: '香蕉',          emoji: '🍌', cat: 'veggie',  wuping: false, healthy: true },
+  { id: 'tempura',    name: '炸蔬菜天妇罗',  emoji: '🍤', cat: 'veggie',  wuping: false, healthy: false },
+  { id: 'canned',     name: '糖水水果罐头',  emoji: '🥫', cat: 'veggie',  wuping: false, healthy: false },
+  { id: 'pickle',     name: '腌咸菜',        emoji: '🥒', cat: 'veggie',  wuping: false, healthy: false },
+  { id: 'kimchi',     name: '泡菜',          emoji: '🌶️', cat: 'veggie',  wuping: false, healthy: false },
+
+  /* 饮品类 9 */
+  { id: 'qingcha',    name: '武平清茶',      emoji: '🍵', cat: 'drink',   wuping: true,  healthy: true },
+  { id: 'lingzhi',    name: '武平灵芝水',    emoji: '🍵', cat: 'drink',   wuping: true,  healthy: true },
+  { id: 'water',      name: '白开水',        emoji: '💧', cat: 'drink',   wuping: false, healthy: true },
+  { id: 'milk',       name: '纯牛奶',        emoji: '🥛', cat: 'drink',   wuping: false, healthy: true },
+  { id: 'soymilk',    name: '无糖豆浆',      emoji: '🥤', cat: 'drink',   wuping: false, healthy: true },
+  { id: 'soda',       name: '含糖饮料',      emoji: '🥤', cat: 'drink',   wuping: false, healthy: false },
+  { id: 'milktea',    name: '奶茶',          emoji: '🧋', cat: 'drink',   wuping: false, healthy: false },
+  { id: 'juice',      name: '果汁饮料',      emoji: '🧃', cat: 'drink',   wuping: false, healthy: false },
+  { id: 'cola',       name: '碳酸饮料',      emoji: '🥤', cat: 'drink',   wuping: false, healthy: false }
+];
+
+const REASON_CORRECT = 'D';
+
+const state = {
+  selected: [],
+  reason: null,
+  filter: 'staple'
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const els = {
+  poolGrid: $('#poolGrid'),
+  filterBar: $('#filterBar'),
+  plate: $('#plate'),
+  sectionStaple: $('#section-staple'),
+  sectionProtein: $('#section-protein'),
+  sectionVeggie: $('#section-veggie'),
+  stdStructure: $('#std-structure'),
+  stdLocal: $('#std-local'),
+  stdHealthy: $('#std-healthy'),
+  stdReason: $('#std-reason'),
+  statusStructure: $('#status-structure'),
+  statusLocal: $('#status-local'),
+  statusHealthy: $('#status-healthy'),
+  statusReason: $('#status-reason'),
+  checkStructure: $('#check-structure'),
+  checkLocal: $('#check-local'),
+  checkHealthy: $('#check-healthy'),
+  checkReason: $('#check-reason'),
+  modal: $('#modal'),
+  mIcon: $('#mIcon'),
+  mTitle: $('#mTitle'),
+  mSubtitle: $('#mSubtitle'),
+  mScore: $('#mScore'),
+  mDetails: $('#mDetails'),
+  mTip: $('#mTip'),
+  toast: $('#toast'),
+  resetBtn: $('#resetBtn'),
+  submitBtn: $('#submitBtn'),
+  mReset: $('#mReset'),
+  mClose: $('#mClose'),
+  reasonOptions: $('#reasonOptions')
+};
+
+/* 音效 */
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function beep(freq, dur = .1, type = 'sine', vol = .12) {
+  const ctx = getCtx();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + dur);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + dur);
+}
+const sfx = {
+  add()     { beep(720, .08, 'sine', .1); setTimeout(() => beep(980, .1, 'sine', .1), 60); },
+  remove()  { beep(420, .1, 'triangle', .08); },
+  pop()     { beep(660, .08, 'sine', .08); },
+  finish()  { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => beep(f, .22, 'sine', .12), i * 120)); }
+};
+
+function toast(msg, type = '') {
+  els.toast.textContent = msg;
+  els.toast.className = 'toast' + (type ? ' ' + type : '');
+  void els.toast.offsetWidth;
+  els.toast.classList.add('show');
+  clearTimeout(els.toast._t);
+  els.toast._t = setTimeout(() => els.toast.classList.remove('show'), 1500);
+}
+function spawnConfetti() {
+  const colors = ['#F44336', '#4CAF50', '#FF9800', '#2196F3', '#9C27B0', '#FFEB3B', '#2E6B4F'];
+  for (let i = 0; i < 90; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.top = '-20px';
+    c.style.animationDelay = Math.random() * .8 + 's';
+    c.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+    c.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3800);
+  }
+}
+
+function renderPool() {
+  els.poolGrid.innerHTML = '';
+  const list = INGREDIENTS.filter(i => i.cat === state.filter);
+  list.forEach(ing => {
+    const card = document.createElement('div');
+    const isSelected = state.selected.includes(ing.id);
+    card.className = 'ing-card' + (isSelected ? ' selected' : '');
+    card.dataset.id = ing.id;
+    card.innerHTML = `
+      <div class="ing-emoji">${ing.emoji}</div>
+      <div class="ing-name">${ing.name}</div>
+    `;
+    card.addEventListener('click', () => toggleIngredient(ing.id));
+    els.poolGrid.appendChild(card);
+  });
+}
+
+els.filterBar.addEventListener('click', (e) => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  state.filter = btn.dataset.filter;
+  $$('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+  renderPool();
+});
+
+function toggleIngredient(id) {
+  const ing = INGREDIENTS.find(i => i.id === id);
+  if (!ing) return;
+  const idx = state.selected.indexOf(id);
+  if (idx >= 0) {
+    state.selected.splice(idx, 1);
+    sfx.remove();
+    toast(`已移除：${ing.name}`);
+  } else {
+    if (state.selected.length >= 6) {
+      toast('最多选 6 样食材～', 'warn');
+      return;
+    }
+    state.selected.push(id);
+    sfx.add();
+    toast(`已加入：${ing.name}`);
+  }
+  renderPool();
+  renderPlate();
+  evaluate();
+}
+
+function renderPlate() {
+  const cats = { staple: [], protein: [], veggie: [], drink: [] };
+  state.selected.forEach(id => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    if (ing) cats[ing.cat].push(ing);
+  });
+
+  const renderSeg = (container, items, emptyText) => {
+    container.innerHTML = '';
+    if (items.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'plate-seg-empty';
+      empty.textContent = emptyText;
+      container.appendChild(empty);
+      return;
+    }
+    items.forEach(ing => {
+      const chip = document.createElement('div');
+      chip.className = 'plate-seg-item';
+      chip.innerHTML = `<span class="emoji">${ing.emoji}</span><span>${ing.name}</span>`;
+      container.appendChild(chip);
+    });
+  };
+
+  renderSeg(els.sectionStaple, cats.staple, '未选');
+  renderSeg(els.sectionProtein, cats.protein, '未选');
+  renderSeg(els.sectionVeggie, cats.veggie, '未选');
+}
+
+function evaluate() {
+  const selected = state.selected.map(id => INGREDIENTS.find(i => i.id === id)).filter(Boolean);
+  const cats = { staple: [], protein: [], veggie: [], drink: [] };
+  selected.forEach(ing => cats[ing.cat].push(ing));
+
+  const nStaple = cats.staple.length;
+  const nProtein = cats.protein.length;
+  const nVeggie = cats.veggie.length;
+  const nWuping = selected.filter(i => i.wuping).length;
+  const hasUnhealthy = selected.some(i => !i.healthy);
+
+  const structureOk = (nStaple >= 1 && nProtein >= 1 && nVeggie >= 1 &&
+                       nVeggie >= nStaple && nVeggie >= nProtein);
+  const detail = `主食 ${nStaple} · 肉豆 ${nProtein} · 蔬果 ${nVeggie}`;
+  setStd(els.stdStructure, els.statusStructure, els.checkStructure,
+    structureOk,
+    structureOk ? `已均衡 · ${detail}` : `主食≥1 · 肉豆≥1 · 蔬果相对更多`);
+
+  const localOk = nWuping >= 2;
+  setStd(els.stdLocal, els.statusLocal, els.checkLocal,
+    localOk,
+    localOk ? `已选 ${nWuping} 种武平特产` : `还需 ${2 - nWuping} 种武平特产`);
+
+  const healthyOk = !hasUnhealthy && selected.length > 0;
+  setStd(els.stdHealthy, els.statusHealthy, els.checkHealthy,
+    healthyOk,
+    healthyOk ? '搭配清爽健康' : (hasUnhealthy ? '发现高油/高糖/高盐项' : '请选择食材'));
+
+  const reasonOk = state.reason === REASON_CORRECT;
+  setStd(els.stdReason, els.statusReason, els.checkReason,
+    reasonOk,
+    reasonOk ? '理由选择正确' : (state.reason ? '再想一想' : '请选择理由'));
+
+  return { structureOk, localOk, healthyOk, reasonOk, selected, cats, nWuping, hasUnhealthy };
+}
+
+function setStd(cardEl, statusEl, checkEl, ok, statusText) {
+  cardEl.classList.toggle('pass', ok);
+  cardEl.classList.toggle('fail', !ok);
+  statusEl.textContent = statusText;
+  checkEl.textContent = ok ? '✓' : '✗';
+}
+
+els.reasonOptions.addEventListener('click', (e) => {
+  const btn = e.target.closest('.reason-btn');
+  if (!btn) return;
+  state.reason = btn.dataset.reason;
+  $$('.reason-btn').forEach(b => b.classList.toggle('selected', b === btn));
+  sfx.pop();
+  evaluate();
+});
+
+function submit() {
+  const r = evaluate();
+  const { structureOk, localOk, healthyOk, reasonOk, selected, nWuping, hasUnhealthy } = r;
+
+  if (selected.length < 3) { toast('至少选择 3 种食材再提交哦～', 'warn'); return; }
+  if (!state.reason) { toast('请选择推荐理由～', 'warn'); return; }
+
+  let score = 0;
+  let sStructure = 0;
+  if (r.cats.staple.length >= 1) sStructure += 8;
+  if (r.cats.protein.length >= 1) sStructure += 8;
+  if (r.cats.veggie.length >= 1) sStructure += 8;
+  if (r.cats.veggie.length >= r.cats.staple.length &&
+      r.cats.veggie.length >= r.cats.protein.length) sStructure += 8;
+  score += sStructure;
+
+  let sLocal = 0;
+  if (nWuping >= 1) sLocal += 8;
+  if (nWuping >= 2) sLocal += 8;
+  if (nWuping >= 3) sLocal += 8;
+  score += sLocal;
+
+  let sHealthy = hasUnhealthy ? 0 : 24;
+  score += sHealthy;
+
+  let sReason = reasonOk ? 20 : 0;
+  score += sReason;
+
+  let icon, title, subtitle, tip;
+  if (score >= 95) { icon = '🏆'; title = '金牌配餐师！'; subtitle = '结构、特色、健康、理由全部满分！'; tip = '你的配餐完全符合五年级运动日午餐标准，营养均衡又有武平特色！'; }
+  else if (score >= 80) { icon = '🌟'; title = '优秀配餐师！'; subtitle = '整体搭配很棒，再打磨一下细节就完美了。'; tip = '记住四大标准：结构完整、本土特色、少盐少油、理由充分。'; }
+  else if (score >= 60) { icon = '🍀'; title = '入门配餐师！'; subtitle = '基本框架有了，还有提升空间。'; tip = '再看看：蔬果是否占了一半？武平特产是否达到 2 种？有没有油炸食品？'; }
+  else { icon = '🌱'; title = '继续加油！'; subtitle = '重新搭配一次，会更好哦～'; tip = '从"主食 1/4 + 肉豆 1/4 + 蔬果 1/2"开始，加入 2 种武平特产，避开油炸和高糖食品。'; }
+
+  els.mIcon.textContent = icon;
+  els.mTitle.textContent = title;
+  els.mSubtitle.textContent = subtitle;
+  els.mScore.textContent = score;
+  els.mTip.textContent = '💡 ' + tip;
+
+  els.mDetails.innerHTML = `
+    <div class="modal-detail-item ${structureOk ? 'pass' : 'fail'}"><span class="dot">${structureOk ? '✓' : '✗'}</span><span>结构完整 · ${structureOk ? '达标' : '待改进'}（${sStructure}/32）</span></div>
+    <div class="modal-detail-item ${localOk ? 'pass' : 'fail'}"><span class="dot">${localOk ? '✓' : '✗'}</span><span>本土特色 · 武平特产 ${nWuping} 种（${sLocal}/24）</span></div>
+    <div class="modal-detail-item ${healthyOk ? 'pass' : 'fail'}"><span class="dot">${healthyOk ? '✓' : '✗'}</span><span>少盐少油 · ${healthyOk ? '达标' : '含不健康食材'}（${sHealthy}/24）</span></div>
+    <div class="modal-detail-item ${reasonOk ? 'pass' : 'fail'}"><span class="dot">${reasonOk ? '✓' : '✗'}</span><span>理由充分 · ${reasonOk ? '准确' : '需再想想'}（${sReason}/20）</span></div>
+  `;
+
+  els.modal.classList.add('show');
+  sfx.finish();
+  if (score >= 80) spawnConfetti();
+}
+
+function reset() {
+  state.selected = [];
+  state.reason = null;
+  $$('.reason-btn').forEach(b => b.classList.remove('selected'));
+  renderPool();
+  renderPlate();
+  evaluate();
+  sfx.remove();
+}
+
+els.submitBtn.addEventListener('click', submit);
+els.resetBtn.addEventListener('click', reset);
+els.mReset.addEventListener('click', () => { els.modal.classList.remove('show'); reset(); });
+els.mClose.addEventListener('click', () => els.modal.classList.remove('show'));
+
+renderPool();
+renderPlate();
+evaluate();
+</script>
+</body>
+</html>

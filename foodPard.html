@@ -1695,6 +1695,10 @@ const FOODS = [
   { id:'potato', name:'土豆', emoji:'🥔', cat:'staple', wuping:false, healthy:true },
   { id:'taro', name:'芋头', emoji:'🥔', cat:'staple', wuping:false, healthy:true },
   { id:'noodles', name:'清汤面', emoji:'🍝', cat:'staple', wuping:false, healthy:true },
+  { id:'millet', name:'小米饭', emoji:'🌾', cat:'staple', wuping:false, healthy:true },
+  { id:'grainporridge', name:'杂粮粥', emoji:'🥣', cat:'staple', wuping:false, healthy:true },
+  { id:'buckwheat', name:'荞麦面', emoji:'🍜', cat:'staple', wuping:false, healthy:true },
+  { id:'yam', name:'蒸山药', emoji:'🍠', cat:'staple', wuping:false, healthy:true },
   { id:'youtiao', name:'油条', emoji:'🥖', cat:'staple', wuping:false, healthy:false },
   { id:'fries', name:'炸薯条', emoji:'🍟', cat:'staple', wuping:false, healthy:false },
   { id:'instant', name:'方便面', emoji:'🍜', cat:'staple', wuping:false, healthy:false },
@@ -1711,6 +1715,10 @@ const FOODS = [
   { id:'tofu', name:'清蒸豆腐', emoji:'🧊', cat:'protein', wuping:false, healthy:true },
   { id:'soybean', name:'黄豆', emoji:'🫘', cat:'protein', wuping:false, healthy:true },
   { id:'beef', name:'瘦牛肉', emoji:'🐮', cat:'protein', wuping:false, healthy:true },
+  { id:'leanpork', name:'清炖瘦猪肉', emoji:'🍖', cat:'protein', wuping:false, healthy:true },
+  { id:'chickenleg', name:'清蒸鸡腿', emoji:'🍗', cat:'protein', wuping:false, healthy:true },
+  { id:'blackbean', name:'黑豆', emoji:'🫘', cat:'protein', wuping:false, healthy:true },
+  { id:'yogurt', name:'无糖原味酸奶', emoji:'🥛', cat:'protein', wuping:false, healthy:true },
   { id:'friedchicken', name:'炸鸡块', emoji:'🍗', cat:'protein', wuping:false, healthy:false },
   { id:'braisedpork', name:'红烧肉', emoji:'🥓', cat:'protein', wuping:false, healthy:false },
   { id:'bacon', name:'腊肉', emoji:'🥓', cat:'protein', wuping:false, healthy:false },
@@ -1731,6 +1739,10 @@ const FOODS = [
   { id:'woodear', name:'木耳', emoji:'🍄', cat:'veggie', wuping:false, healthy:true },
   { id:'apple', name:'苹果', emoji:'🍎', cat:'veggie', wuping:false, healthy:true },
   { id:'banana', name:'香蕉', emoji:'🍌', cat:'veggie', wuping:false, healthy:true },
+  { id:'pepper', name:'彩椒', emoji:'🫑', cat:'veggie', wuping:false, healthy:true },
+  { id:'cucumber', name:'黄瓜', emoji:'🥒', cat:'veggie', wuping:false, healthy:true },
+  { id:'pear', name:'梨', emoji:'🍐', cat:'veggie', wuping:false, healthy:true },
+  { id:'grape', name:'葡萄', emoji:'🍇', cat:'veggie', wuping:false, healthy:true },
   { id:'tempura', name:'炸蔬菜天妇罗', emoji:'🍤', cat:'veggie', wuping:false, healthy:false },
   { id:'canned', name:'糖水水果罐头', emoji:'🥫', cat:'veggie', wuping:false, healthy:false },
   { id:'pickle', name:'腌咸菜', emoji:'🥒', cat:'veggie', wuping:false, healthy:false },
@@ -1741,6 +1753,10 @@ const FOODS = [
   { id:'water', name:'白开水', emoji:'💧', cat:'drink', wuping:false, healthy:true },
   { id:'milk', name:'纯牛奶', emoji:'🥛', cat:'drink', wuping:false, healthy:true },
   { id:'soymilk', name:'无糖豆浆', emoji:'🥤', cat:'drink', wuping:false, healthy:true },
+  { id:'lemonwater', name:'无糖柠檬水', emoji:'🍋', cat:'drink', wuping:false, healthy:true },
+  { id:'barleytea', name:'无糖大麦茶', emoji:'🍵', cat:'drink', wuping:false, healthy:true },
+  { id:'sportsdrink', name:'含糖运动饮料', emoji:'🧃', cat:'drink', wuping:false, healthy:false },
+  { id:'honeywater', name:'蜂蜜水', emoji:'🍯', cat:'drink', wuping:false, healthy:false },
   { id:'soda', name:'含糖饮料', emoji:'🥤', cat:'drink', wuping:false, healthy:false },
   { id:'milktea', name:'奶茶', emoji:'🧋', cat:'drink', wuping:false, healthy:false },
   { id:'juice', name:'果汁饮料', emoji:'🧃', cat:'drink', wuping:false, healthy:false },
@@ -1748,18 +1764,18 @@ const FOODS = [
 ];
 
 const SETS = {
-  wholeStaple: new Set(['sweetpotato','corn','oats','wholewheat','potato','taro']),
-  animalProtein: new Set(['xiangdongji','baizhanji','heyujian','steamfish','shrimp','chickenbreast','egg','beef']),
-  plantProtein: new Set(['niangdoufu','tofu','soybean','soymilk']),
-  dairyProtein: new Set(['milk']),
-  fruit: new Set(['baixiangguo','qicheng','apple','banana']),
-  vegetable: new Set(['shishu','jiecai','xianggu','sungan','broccoli','carrot','tomato','spinach','cabbage','woodear']),
-  usefulDrink: new Set(['water','milk','soymilk']),
-  noDiversity: new Set(['water','qingcha','lingzhi'])
+  wholeStaple: new Set(['sweetpotato','corn','oats','wholewheat','potato','taro','millet','grainporridge','buckwheat','yam']),
+  animalProtein: new Set(['xiangdongji','baizhanji','heyujian','steamfish','shrimp','chickenbreast','egg','beef','leanpork','chickenleg']),
+  plantProtein: new Set(['niangdoufu','tofu','soybean','soymilk','blackbean']),
+  dairyProtein: new Set(['milk','yogurt']),
+  fruit: new Set(['baixiangguo','qicheng','apple','banana','pear','grape']),
+  vegetable: new Set(['shishu','jiecai','xianggu','sungan','broccoli','carrot','tomato','spinach','cabbage','woodear','pepper','cucumber']),
+  usefulDrink: new Set(['water','milk','soymilk','lemonwater']),
+  noDiversity: new Set(['water','qingcha','lingzhi','lemonwater','barleytea'])
 };
 
 const RISK_META = {
-  soda: ['含糖饮料', 10], milktea: ['奶茶', 10], juice: ['果汁饮料', 10], cola: ['碳酸饮料', 10],
+  soda: ['含糖饮料', 10], milktea: ['奶茶', 10], juice: ['果汁饮料', 10], cola: ['碳酸饮料', 10], sportsdrink: ['含糖运动饮料', 10], honeywater: ['蜂蜜水', 10],
   instant: ['方便面', 8],
   youtiao: ['油炸食品', 6], fries: ['油炸食品', 6], friedchicken: ['油炸食品', 6], friedfish: ['油炸食品', 6], tempura: ['油炸食品', 6],
   bacon: ['高盐加工肉', 6], sausage: ['高盐加工肉', 6], pickle: ['腌制高盐食品', 6], kimchi: ['腌制高盐食品', 6],
@@ -1901,8 +1917,9 @@ function evaluateMeal() {
 
   let sDrink = 0;
   if (ids.has('water')) sDrink = 10;
+  else if (ids.has('lemonwater')) sDrink = 8;
   else if (ids.has('milk') || ids.has('soymilk')) sDrink = 6;
-  else if (ids.has('qingcha') || ids.has('lingzhi')) sDrink = 4;
+  else if (ids.has('qingcha') || ids.has('lingzhi') || ids.has('barleytea')) sDrink = 4;
 
   const risks = selected.filter(food => RISK_META[food.id]).map(food => ({
     food, label: RISK_META[food.id][0], deduction: RISK_META[food.id][1]

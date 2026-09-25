@@ -673,8 +673,9 @@
     content: '✓ 已作答 · 等待揭晓';
     position: absolute;
     inset: 54px 16px 16px;
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: rgba(255,255,255,.9);
     border: 3px solid #D5B36A;
     border-radius: 18px;
@@ -703,6 +704,253 @@
     .game { height: auto; min-height: 100vh; grid-template-rows: auto auto auto; }
     .arena { grid-template-columns: 1fr; }
     .answer-btn { min-height: 150px; }
+  }
+
+  /* ========== 课堂大屏布局：题目与揭晓信息为主，操作区降权 ========== */
+  .game {
+    grid-template-rows: 58px minmax(300px, 1.25fr) minmax(230px, .85fr);
+  }
+  .question-area {
+    grid-template-columns: 118px minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto;
+    align-content: center;
+    padding: 22px 32px 18px;
+    gap: 14px 26px;
+  }
+  .food-card {
+    min-width: 0;
+    width: 112px;
+    height: 104px;
+    padding: 0;
+    font-size: clamp(48px, 4vw, 68px);
+  }
+  .question-text .main {
+    font-size: clamp(34px, 2.75vw, 50px);
+    line-height: 1.3;
+  }
+  .question-text .hint {
+    font-size: clamp(16px, 1.15vw, 20px);
+  }
+  .answer-reveal {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(170px, .48fr) minmax(0, 1.6fr);
+    align-items: center;
+    gap: 18px;
+    background: linear-gradient(135deg, #FFF7DF, #FFFDF8);
+    border: 3px solid #E3BE70;
+    border-radius: 18px;
+    padding: 15px 18px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.8), 0 5px 14px rgba(79,55,18,.1);
+    position: relative;
+    z-index: 2;
+  }
+  .answer-reveal[hidden] { display: none !important; }
+  .reveal-verdict {
+    border-right: 2px solid #E7D4AB;
+    padding-right: 18px;
+  }
+  .reveal-label {
+    color: #7D6845;
+    font-size: clamp(14px, 1vw, 17px);
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+  .reveal-answer {
+    color: var(--c-primary);
+    font-size: clamp(34px, 2.8vw, 50px);
+    line-height: 1.1;
+    font-weight: 900;
+  }
+  .reveal-result {
+    color: var(--c-secondary);
+    font-size: clamp(16px, 1.2vw, 20px);
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+  .reveal-explain {
+    color: #3F3B32;
+    font-size: clamp(19px, 1.45vw, 25px);
+    line-height: 1.5;
+    font-weight: 700;
+  }
+  .next-round-btn {
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .arena { position: relative; }
+  .arena-next-btn {
+    position: absolute;
+    z-index: 20;
+    inset: 60px 14px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 18px;
+    border: 5px solid #A73A27;
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(255,250,237,.98), rgba(255,232,196,.98));
+    color: #8F2D1F;
+    font-family: inherit;
+    font-size: clamp(32px, 3vw, 54px);
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: 3px;
+    box-shadow: 0 12px 30px rgba(95,28,20,.28), inset 0 0 0 4px rgba(255,255,255,.75);
+  }
+  .arena-next-btn[hidden] { display: none !important; }
+  .arena-next-btn::before {
+    content: '👇';
+    display: block;
+    font-size: .9em;
+    margin-right: 14px;
+  }
+  .arena-next-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 6px 16px rgba(95,28,20,.25), inset 0 0 0 4px rgba(255,255,255,.75);
+  }
+  .timer-track { margin-top: 0; }
+
+  .player {
+    grid-template-rows: auto 1fr;
+    align-content: stretch;
+    padding: 10px 12px;
+  }
+  .answer-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    gap: 14px;
+    align-self: center;
+  }
+  .answer-btn {
+    height: clamp(124px, 16vh, 170px);
+    min-height: 124px;
+    max-height: none;
+    padding: 12px 14px;
+    border-radius: 18px;
+  }
+  .answer-btn .ab-key {
+    top: 9px;
+    left: 11px;
+    font-size: clamp(15px, 1vw, 18px);
+  }
+  .answer-btn .ab-name {
+    font-size: clamp(34px, 2.7vw, 48px);
+    margin-top: 8px;
+  }
+  .answer-btn .ab-sub { font-size: clamp(13px, .95vw, 17px); }
+  .player.submitted::after { inset: 52px 14px 12px; }
+
+  .modal-card.summary-modal {
+    max-width: 980px;
+    max-height: 92vh;
+    padding: 22px 30px 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .summary-modal .icon { font-size: 48px; }
+  .summary-modal h1 { margin-bottom: 6px; }
+  .summary-modal .final-scores { margin: 12px 0; }
+  .summary-modal .final-side { padding: 12px; }
+  .summary-modal .fs-score { font-size: 34px; }
+  .wrong-summary {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid #EBD9B8;
+    text-align: left;
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    flex-direction: column;
+  }
+  .wrong-summary h2 {
+    color: var(--c-primary);
+    font-size: clamp(20px, 1.5vw, 26px);
+    margin-bottom: 8px;
+  }
+  .wrong-summary-list {
+    max-height: none;
+    min-height: 72px;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding-right: 6px;
+    display: grid;
+    gap: 8px;
+  }
+  .wrong-item {
+    background: #FFF8E8;
+    border: 2px solid #ECD7AD;
+    border-left: 6px solid var(--c-secondary);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .wrong-question {
+    font-size: clamp(16px, 1.1vw, 19px);
+    font-weight: 900;
+    color: #382F27;
+    line-height: 1.4;
+  }
+  .wrong-answer { color: var(--c-primary); margin-left: 10px; white-space: nowrap; }
+  .wrong-statuses { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 4px; }
+  .wrong-status {
+    padding: 3px 9px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .wrong-status.ok { color: #236346; background: #DDF1E6; }
+  .wrong-status.bad { color: #9D2D20; background: #F9DDD5; }
+  .wrong-explain { color: #65594C; font-size: 15px; line-height: 1.45; }
+  .all-correct-message {
+    background: #E2F3E9;
+    color: #236346;
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 900;
+  }
+  .summary-modal > .icon,
+  .summary-modal > h1,
+  .summary-modal > p,
+  .summary-modal > .final-scores,
+  .summary-modal > button { flex: 0 0 auto; }
+
+  @media (max-height: 760px) {
+    .game { grid-template-rows: 52px minmax(280px, 1.18fr) minmax(220px, .82fr); }
+    .question-area { min-height: 0; padding: 14px 24px 12px; gap: 10px 20px; }
+    .food-card { width: 92px; height: 88px; }
+    .answer-reveal { padding: 10px 14px; }
+    .answer-btn { min-height: 116px; max-height: 128px; }
+    .modal-card.summary-modal { padding: 14px 22px 16px; }
+    .summary-modal .icon { font-size: 38px; margin-bottom: 2px; }
+    .summary-modal h1 { font-size: 27px; }
+    .summary-modal .final-scores { margin: 8px 0; }
+    .summary-modal .final-side { padding: 8px 10px; }
+    .summary-modal .fs-score { font-size: 28px; }
+    .wrong-summary { margin-top: 6px; padding-top: 7px; }
+    .wrong-summary h2 { margin-bottom: 5px; }
+    .summary-modal > button { margin-top: 8px; padding: 10px 34px; }
+    .overlay { align-items: flex-start; overflow-y: auto; padding: 12px; }
+    .start-card { margin: auto 0; padding: 20px 30px; }
+    .start-card .start-icon { font-size: 46px; margin-bottom: 2px; }
+    .start-card h1 { font-size: 28px; margin-bottom: 6px; }
+    .pk-illustration { margin: 8px 0 10px; }
+    .pk-side { padding: 9px 8px; font-size: 18px; }
+    .pk-vs { font-size: 27px; }
+    .rule-list { gap: 3px; padding: 9px 16px; margin: 7px 0; font-size: 14px; line-height: 1.42; }
+    .start-card p { font-size: 14px; line-height: 1.5; }
+    .start-actions button { padding: 11px 20px; font-size: 17px; }
+  }
+  @media (max-width: 900px) {
+    .game { grid-template-rows: auto auto auto; }
+    .answer-reveal { grid-template-columns: 1fr; text-align: center; }
+    .reveal-verdict { border-right: 0; border-bottom: 2px solid #E7D4AB; padding: 0 0 8px; }
+    .arena-next-btn { inset: 56px 10px 10px; }
   }
 </style>
 </head>
@@ -736,6 +984,16 @@
       <span class="dot"></span>
         <span id="raceText">🔒 独立作答中</span>
     </div>
+    <section class="answer-reveal" id="answerReveal" hidden aria-live="polite">
+      <div class="reveal-verdict">
+        <div class="reveal-label">本题正确答案</div>
+        <div class="reveal-answer" id="revealAnswer">✔ 对</div>
+      </div>
+      <div class="reveal-knowledge">
+        <div class="reveal-result" id="revealResult">本题结果</div>
+        <div class="reveal-explain" id="revealExplain">知识解释</div>
+      </div>
+    </section>
     <div class="timer-track">
       <div class="timer-fill" id="timerFill"></div>
     </div>
@@ -790,6 +1048,7 @@
         </button>
       </div>
     </div>
+    <button class="next-round-btn arena-next-btn" id="nextRound" type="button" hidden>下一题 ➜</button>
   </div>
 </div>
 
@@ -809,6 +1068,8 @@
       <div>🏆 <b>单方答对</b>：只有一人答对时，该玩家赢得本题。</div>
       <div>⏰ <b>无人答对</b>：两人都错或都未作答，本题无人得分。</div>
       <div>🔥 <b>连胜加分</b>：连续赢得回合可获得额外分数，最高两档。</div>
+      <div>👉 <b>手动翻题</b>：答案揭晓后，任意一位点击“下一题”继续。</div>
+      <div>📒 <b>课后复盘</b>：全部完成后，统一查看双方错题和知识解释。</div>
     </div>
     <p>共 <b style="color:var(--c-secondary);">6 题</b> · 每题 <b style="color:var(--c-secondary);">12 秒</b> · 真假题各 3 道，平局可再来一局！</p>
     <div class="start-actions">
@@ -819,7 +1080,7 @@
 
 <!-- 结算弹窗 -->
 <div class="modal" id="modal">
-  <div class="modal-card">
+  <div class="modal-card summary-modal">
     <div class="icon" id="m-icon">🏆</div>
     <h1 id="m-title">对战结束！</h1>
     <p id="m-text1"></p>
@@ -836,6 +1097,10 @@
       </div>
     </div>
     <p id="m-text2" style="font-size:15px;color:#666;"></p>
+    <section class="wrong-summary" aria-labelledby="wrongSummaryTitle">
+      <h2 id="wrongSummaryTitle">📒 本局错题汇总</h2>
+      <div class="wrong-summary-list" id="wrongSummary"></div>
+    </section>
     <button id="restart-btn" type="button">再来一局</button>
   </div>
 </div>
@@ -1369,7 +1634,7 @@ const QUESTION_BANK_SALT = [
   { text: '多吃盐可以增强体力', answer: false, explain: '盐吃多了会增加身体负担，并不能增强体力。' },
   { text: '用醋、柠檬汁等调味，可以帮助减少用盐', answer: true, explain: '酸味和香辛味能丰富味道，帮助减少对咸味的依赖。' },
   { text: '咸菜、腊肉和香肠通常都是高盐食物', answer: true, explain: '腌制食品和加工肉制品通常含盐较高，应该少吃。' }
-];
+].map((question, index) => ({ ...question, id: index + 1 }));
 
 const SALT_CONFIG = {
   totalQuestions: 6,
@@ -1389,6 +1654,7 @@ const saltState = {
   roundResolved: false,
   timerId: null,
   autoNextId: null,
+  history: [],
   players: {
     A: { score: 0, correct: 0, combo: 0, maxCombo: 0, won: 0, response: null },
     B: { score: 0, correct: 0, combo: 0, maxCombo: 0, won: 0, response: null }
@@ -1402,6 +1668,8 @@ const ui = {
   timerPill: one('#timerPill'), timerFill: one('#timerFill'),
   foodCard: one('#foodCard'), qmain: one('#qmain'), qhint: one('#qhint'),
   raceBadge: one('#raceBadge'), raceText: one('#raceText'),
+  answerReveal: one('#answerReveal'), revealAnswer: one('#revealAnswer'),
+  revealResult: one('#revealResult'), revealExplain: one('#revealExplain'), nextRound: one('#nextRound'),
   liveA: one('#liveA'), liveB: one('#liveB'),
   playerA: one('#playerA'), playerB: one('#playerB'),
   scoreA: one('#scoreA'), scoreB: one('#scoreB'),
@@ -1413,7 +1681,8 @@ const ui = {
   mIcon: one('#m-icon'), mTitle: one('#m-title'), mText1: one('#m-text1'), mText2: one('#m-text2'),
   finalA: one('#finalA'), finalB: one('#finalB'),
   finalScoreA: one('#finalScoreA'), finalScoreB: one('#finalScoreB'),
-  finalDetailA: one('#finalDetailA'), finalDetailB: one('#finalDetailB')
+  finalDetailA: one('#finalDetailA'), finalDetailB: one('#finalDetailB'),
+  wrongSummary: one('#wrongSummary')
 };
 
 const NAMES = { A: '玩家A', B: '玩家B' };
@@ -1533,6 +1802,7 @@ function startSaltGame() {
   saltState.phase = 'playing';
   saltState.questions = pickBalancedQuestions();
   saltState.current = 0;
+  saltState.history = [];
   saltState.players.A = { score: 0, correct: 0, combo: 0, maxCombo: 0, won: 0, response: null };
   saltState.players.B = { score: 0, correct: 0, combo: 0, maxCombo: 0, won: 0, response: null };
   ui.total.textContent = SALT_CONFIG.totalQuestions;
@@ -1550,6 +1820,9 @@ function renderSaltQuestion() {
   saltState.roundResolved = false;
   saltState.players.A.response = null;
   saltState.players.B.response = null;
+  ui.answerReveal.hidden = true;
+  ui.nextRound.hidden = true;
+  ui.nextRound.disabled = true;
   clearRoundVisuals();
   setButtonsDisabled('A', false);
   setButtonsDisabled('B', false);
@@ -1665,7 +1938,8 @@ function resolveSaltRound(timedOut) {
     const speedText = speedBonus ? `速度 +${speedBonus}` : '速度 +0';
     const comboText = comboBonus ? `，连胜 +${comboBonus}` : '';
     ui.qhint.className = 'hint good';
-    ui.qhint.textContent = `✅ 正确答案：${q.answer ? '对' : '错'}。${NAMES[winner]}得 ${gained} 分（基础 100，${speedText}${comboText}）。${q.explain}`;
+    ui.qhint.textContent = '答案已经揭晓，请一起阅读下方知识解释。';
+    ui.revealResult.textContent = `${NAMES[winner]}赢得本题 · +${gained} 分（${speedText}${comboText}）`;
     saltFloat(`+${gained}`, winner === 'A' ? '#2F7B59' : '#C94B2C', winState.response.btn);
     pulseSalt(winner === 'A' ? ui.statScoreA : ui.statScoreB);
     saltSfx.correct();
@@ -1674,13 +1948,77 @@ function resolveSaltRound(timedOut) {
     saltState.players.B.combo = 0;
     setSaltStatus('none');
     ui.qhint.className = 'hint bad';
-    const lead = timedOut ? '⏰ 时间到。' : '😅 两位都没有答对。';
-    ui.qhint.textContent = `${lead}正确答案：${q.answer ? '对' : '错'}。${q.explain}`;
+    const lead = timedOut ? '⏰ 时间到' : '😅 两位都没有答对';
+    ui.qhint.textContent = '答案已经揭晓，请一起阅读下方知识解释。';
+    ui.revealResult.textContent = `${lead} · 本题无人得分`;
     saltSfx.wrong();
   }
+  ui.revealAnswer.textContent = q.answer ? '✔ 对' : '✘ 错';
+  ui.revealExplain.textContent = q.explain;
+  ui.answerReveal.hidden = false;
+  ui.nextRound.textContent = saltState.current === saltState.questions.length - 1 ? '查看错题汇总 ➜' : '下一题 ➜';
+  ui.nextRound.hidden = false;
+  ui.nextRound.disabled = false;
+  saltState.history.push({
+    questionId: q.id,
+    number: saltState.current + 1,
+    text: q.text,
+    answer: q.answer,
+    explain: q.explain,
+    A: saltState.players.A.response ? {
+      choice: saltState.players.A.response.choice,
+      correct: saltState.players.A.response.choice === q.answer
+    } : null,
+    B: saltState.players.B.response ? {
+      choice: saltState.players.B.response.choice,
+      correct: saltState.players.B.response.choice === q.answer
+    } : null
+  });
   updateSaltStats();
+}
+
+function advanceSaltQuestion() {
+  if (saltState.phase !== 'revealing' || ui.nextRound.disabled) return;
+  ui.nextRound.disabled = true;
+  ui.nextRound.hidden = true;
+  saltState.phase = 'transitioning';
   saltState.current++;
-  saltState.autoNextId = setTimeout(renderSaltQuestion, 3000);
+  if (saltState.current >= saltState.questions.length) finishSaltGame();
+  else renderSaltQuestion();
+}
+
+function saltEscape(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
+function historyStatus(item, player) {
+  const response = item[player];
+  if (!response) return { label: `${NAMES[player]}：未答`, className: 'bad' };
+  return response.correct
+    ? { label: `${NAMES[player]}：答对`, className: 'ok' }
+    : { label: `${NAMES[player]}：答错（选${response.choice ? '对' : '错'}）`, className: 'bad' };
+}
+
+function renderWrongSummary() {
+  const wrongItems = saltState.history.filter(item => !item.A?.correct || !item.B?.correct);
+  if (!wrongItems.length) {
+    ui.wrongSummary.innerHTML = '<div class="all-correct-message">🎉 两位同学全部答对，本局没有错题！</div>';
+    return;
+  }
+  ui.wrongSummary.innerHTML = wrongItems.map(item => {
+    const a = historyStatus(item, 'A');
+    const b = historyStatus(item, 'B');
+    return `<article class="wrong-item" data-question-id="${item.questionId}">
+      <div class="wrong-question">第 ${item.number} 题 · “${saltEscape(item.text)}”<span class="wrong-answer">正确答案：${item.answer ? '对' : '错'}</span></div>
+      <div class="wrong-statuses">
+        <span class="wrong-status ${a.className}">${saltEscape(a.label)}</span>
+        <span class="wrong-status ${b.className}">${saltEscape(b.label)}</span>
+      </div>
+      <div class="wrong-explain">${saltEscape(item.explain)}</div>
+    </article>`;
+  }).join('');
 }
 
 function finishSaltGame() {
@@ -1711,6 +2049,7 @@ function finishSaltGame() {
   ui.finalDetailA.textContent = `赢得 ${a.won} 题 · 判断正确 ${a.correct} 题 · 最高连胜 ${a.maxCombo}`;
   ui.finalDetailB.textContent = `赢得 ${b.won} 题 · 判断正确 ${b.correct} 题 · 最高连胜 ${b.maxCombo}`;
   ui.mText2.textContent = text;
+  renderWrongSummary();
   ui.modal.classList.add('show');
   saltSfx.finish();
 }
@@ -1745,6 +2084,7 @@ document.addEventListener('keydown', e => {
 });
 
 one('#start-game').addEventListener('click', startSaltGame);
+ui.nextRound.addEventListener('click', advanceSaltQuestion);
 one('#restart-btn').addEventListener('click', () => {
   clearInterval(saltState.timerId);
   clearTimeout(saltState.autoNextId);

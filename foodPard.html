@@ -1191,6 +1191,713 @@
   }
 </style>
 
+<style id="score-guide-styles">
+  .pool-controls {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    min-width: 0;
+  }
+  .pool-controls .filter-bar {
+    grid-column: auto;
+    grid-row: auto;
+    flex-wrap: nowrap;
+  }
+  .score-guide-btn {
+    position: relative;
+    min-height: 44px;
+    margin-left: 5px;
+    padding: 7px 15px;
+    border: 2px solid rgba(46,107,79,.42);
+    border-radius: 999px;
+    background: #FFFFFF;
+    color: var(--c-primary);
+    font: 800 clamp(14px, .92vw, 17px)/1 var(--font);
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(46,107,79,.09);
+    transition: transform .16s ease, border-color .16s ease, background .16s ease;
+  }
+  .score-guide-btn::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: -10px;
+    border-left: 1px solid #D8CDAF;
+  }
+  .score-guide-btn:hover,
+  .score-guide-btn:focus-visible {
+    border-color: var(--c-primary);
+    background: #F2F8F4;
+    transform: translateY(-1px);
+    outline: none;
+  }
+
+  body.score-guide-open { overflow: hidden; }
+  .score-guide-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 320;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(20,47,37,.68);
+    backdrop-filter: blur(5px);
+  }
+  .score-guide-modal.show { display: flex; animation: fadeIn .2s ease; }
+  .score-guide-card {
+    position: relative;
+    width: min(1080px, calc(100vw - 40px));
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid rgba(46,107,79,.18);
+    border-radius: 22px;
+    background: #FFFDF8;
+    box-shadow: 0 28px 80px rgba(0,0,0,.34);
+    color: #2F352F;
+  }
+  .score-guide-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 22px 68px 16px 28px;
+    border-bottom: 1px solid #E9DFC7;
+    background: rgba(255,253,248,.97);
+    backdrop-filter: blur(7px);
+  }
+  .score-guide-head h2 {
+    margin: 0;
+    color: var(--c-primary);
+    font-size: clamp(24px, 2vw, 32px);
+    letter-spacing: .5px;
+  }
+  .score-guide-head p {
+    margin: 7px 0 0;
+    color: #766A55;
+    font-size: clamp(14px, 1vw, 17px);
+    font-weight: 700;
+  }
+  .score-guide-close {
+    position: absolute;
+    top: 17px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: #F3EBDD;
+    color: #765B3A;
+    font: 900 28px/1 var(--font);
+    cursor: pointer;
+  }
+  .score-guide-close:hover,
+  .score-guide-close:focus-visible { background: #E8D7B8; outline: 3px solid rgba(46,107,79,.2); }
+  .score-guide-body { padding: 18px 26px 24px; }
+  .student-score-panel {
+    padding: 16px;
+    border: 2px solid #BFD8C7;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #F8FCF9, #EEF7F1);
+  }
+  .student-score-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 12px;
+  }
+  .student-score-heading h3 {
+    margin: 0;
+    color: var(--c-primary);
+    font-size: clamp(21px, 1.55vw, 26px);
+  }
+  .student-score-heading p {
+    margin: 5px 0 0;
+    color: #657064;
+    font-size: clamp(14px, .92vw, 16px);
+    font-weight: 700;
+  }
+  .student-score-counts {
+    display: flex;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+  .student-score-counts span {
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #FFFFFF;
+    color: var(--c-primary);
+    box-shadow: 0 2px 8px rgba(46,107,79,.12);
+    font-size: clamp(14px, .95vw, 17px);
+    font-weight: 900;
+  }
+  .student-check-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .student-check-card {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 76px;
+    padding: 9px 11px;
+    border: 2px solid #E1D9C7;
+    border-radius: 12px;
+    background: #FFFFFF;
+  }
+  .student-check-card.done {
+    border-color: #78B78A;
+    background: #F0FAF3;
+  }
+  .student-check-icon {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    background: #F4EEE2;
+    font-size: 25px;
+  }
+  .student-check-card.done .student-check-icon { background: #DDF2E3; }
+  .student-check-title {
+    color: #344438;
+    font-size: clamp(16px, 1.05vw, 19px);
+    font-weight: 900;
+    line-height: 1.25;
+  }
+  .student-check-desc {
+    margin-top: 3px;
+    color: #6B6B60;
+    font-size: clamp(13px, .85vw, 15px);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .student-check-status {
+    min-width: 76px;
+    padding: 6px 9px;
+    border-radius: 999px;
+    background: #FFF2D4;
+    color: #9A6412;
+    text-align: center;
+    font-size: clamp(13px, .84vw, 15px);
+    font-weight: 900;
+    white-space: nowrap;
+  }
+  .student-check-card.done .student-check-status {
+    background: #D9F0DF;
+    color: #257043;
+  }
+  .student-check-kind {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: #E8EFEA;
+    color: #577061;
+    font-size: .68em;
+    vertical-align: 2px;
+  }
+  .student-check-kind.bonus { background: #FFF0C9; color: #90610D; }
+  .student-score-result {
+    margin-top: 11px;
+    padding: 10px 14px;
+    border-radius: 11px;
+    text-align: center;
+    font-size: clamp(16px, 1.05vw, 19px);
+    font-weight: 900;
+    line-height: 1.4;
+  }
+  .student-score-result.great { background: #DDF3E4; color: #22673C; }
+  .student-score-result.good { background: #FFF0C9; color: #835A0D; }
+  .student-score-result.adjust { background: #FCE4DB; color: #A33C23; }
+  .teacher-score-toggle {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 14px;
+    border: 2px solid #D6C8A9;
+    border-radius: 12px;
+    background: #FFF9EC;
+    color: #765B31;
+    font: 900 clamp(15px, 1vw, 18px)/1.2 var(--font);
+    cursor: pointer;
+  }
+  .teacher-score-toggle:hover,
+  .teacher-score-toggle:focus-visible { border-color: var(--c-primary); color: var(--c-primary); outline: 3px solid rgba(46,107,79,.15); }
+  .teacher-score-details { margin-top: 14px; }
+  .teacher-score-details[hidden] { display: none !important; }
+  .teacher-score-details > h3 {
+    margin: 0 0 10px;
+    color: var(--c-primary);
+    font-size: clamp(19px, 1.3vw, 23px);
+  }
+  .score-formula {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border: 1px solid #E7C979;
+    border-radius: 13px;
+    background: #FFF4D5;
+    color: #66470B;
+    font-size: clamp(15px, 1vw, 18px);
+    font-weight: 800;
+    line-height: 1.45;
+  }
+  .score-formula strong { color: #C94B2C; }
+  .score-rules-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .score-rule-card {
+    overflow: hidden;
+    border: 1px solid #E4D9BF;
+    border-radius: 14px;
+    background: #FFFFFF;
+  }
+  .score-rule-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 13px;
+    background: #F2F7F3;
+    color: var(--c-primary);
+    font-size: clamp(17px, 1.12vw, 20px);
+    font-weight: 900;
+  }
+  .score-rule-max {
+    flex: 0 0 auto;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--c-primary);
+    color: #FFFFFF;
+    font-size: .82em;
+  }
+  .score-rule-lines {
+    display: grid;
+    gap: 6px;
+    padding: 10px 13px 12px;
+    color: #504A40;
+    font-size: clamp(14px, .91vw, 16px);
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .score-rule-line {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+  }
+  .score-rule-line::before { content: '•'; color: var(--c-secondary); font-weight: 900; }
+  .score-rule-line strong { color: #C94B2C; }
+  .score-caps {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border: 2px solid #E6AA84;
+    border-radius: 14px;
+    background: #FFF4EC;
+  }
+  .score-caps h3 {
+    margin: 0 0 9px;
+    color: #A33C23;
+    font-size: clamp(17px, 1.12vw, 20px);
+  }
+  .score-cap-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px 18px;
+    color: #604B40;
+    font-size: clamp(14px, .92vw, 16px);
+    font-weight: 700;
+    line-height: 1.45;
+  }
+  .score-cap-item strong { color: #C43E28; }
+  .score-guide-note {
+    margin: 13px 0 0;
+    padding: 10px 13px;
+    border-left: 4px solid var(--c-primary);
+    border-radius: 7px;
+    background: #EEF6F0;
+    color: #3F5D4A;
+    font-size: clamp(13px, .9vw, 16px);
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .score-guide-actions { display: flex; justify-content: flex-end; margin-top: 16px; }
+  .score-guide-done {
+    min-width: 150px;
+    min-height: 46px;
+    padding: 9px 24px;
+    border: 0;
+    border-radius: 13px;
+    background: var(--c-primary);
+    color: white;
+    font: 900 17px/1 var(--font);
+    cursor: pointer;
+    box-shadow: 0 5px 14px rgba(46,107,79,.22);
+  }
+  .score-guide-done:hover,
+  .score-guide-done:focus-visible { background: #245B42; outline: 3px solid rgba(46,107,79,.2); }
+
+  @media (max-width: 1180px) {
+    .pool-controls {
+      grid-column: 1;
+      grid-row: 2;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+    .pool-grid { grid-row: 3; }
+  }
+  @media (max-width: 820px) {
+    .score-rules-grid,
+    .score-cap-list,
+    .student-check-grid { grid-template-columns: 1fr; }
+    .score-guide-modal { padding: 10px; }
+    .score-guide-card { width: calc(100vw - 20px); max-height: 94vh; }
+    .score-guide-head { padding: 17px 60px 13px 18px; }
+    .score-guide-body { padding: 13px 16px 18px; }
+    .student-score-heading { align-items: flex-start; flex-direction: column; gap: 9px; }
+  }
+  @media (max-height: 760px) {
+    .pool-panel { grid-template-rows: 44px minmax(0, 1fr); }
+    .score-guide-head { padding-top: 15px; padding-bottom: 12px; }
+    .score-guide-body { padding-top: 12px; }
+    .score-rule-lines { padding-top: 8px; padding-bottom: 9px; gap: 4px; }
+  }
+  @media (max-width: 1180px) and (max-height: 760px) {
+    .pool-panel { grid-template-rows: auto auto minmax(0, 1fr); }
+  }
+</style>
+
+<style id="rubric-screen-styles">
+  .score-guide-card {
+    width: min(1280px, calc(100vw - 28px));
+    height: min(900px, calc(100vh - 24px));
+    max-height: none;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .score-guide-head {
+    position: relative;
+    padding: 18px 72px 14px 28px;
+  }
+  .score-guide-head h2 { font-size: clamp(28px, 2.2vw, 40px); }
+  .score-guide-head p { font-size: clamp(17px, 1.2vw, 22px); }
+  .score-guide-body {
+    min-height: 0;
+    padding: 14px 24px 18px;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+  .rubric-screen-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    color: #675B49;
+    font-size: clamp(16px, 1.2vw, 21px);
+    font-weight: 800;
+  }
+  .rubric-progress {
+    flex: 0 0 auto;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--c-primary);
+    color: #FFFFFF;
+    font-size: clamp(17px, 1.25vw, 22px);
+  }
+  .rubric-slide { min-height: 0; }
+  .rubric-card-grid {
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .rubric-card {
+    min-height: 0;
+    overflow: hidden;
+    border: 3px solid #D9CBAA;
+    border-radius: 18px;
+    background: #FFFFFF;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .rubric-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 18px;
+    background: #EEF6F0;
+    color: var(--c-primary);
+  }
+  .rubric-card-title {
+    font-size: clamp(25px, 2vw, 34px);
+    font-weight: 900;
+  }
+  .rubric-card-max {
+    flex: 0 0 auto;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: var(--c-primary);
+    color: #FFFFFF;
+    font-size: clamp(18px, 1.35vw, 24px);
+    font-weight: 900;
+  }
+  .rubric-example {
+    padding: 9px 16px;
+    border-top: 1px solid #D7E8DC;
+    border-bottom: 1px solid #E7DDC8;
+    background: #F7FBF8;
+    color: #3E5549;
+    font-size: clamp(15px, 1.05vw, 19px);
+    font-weight: 750;
+    line-height: 1.35;
+  }
+  .rubric-options {
+    min-height: 0;
+    display: grid;
+    align-content: stretch;
+    gap: 8px;
+    padding: 12px 15px 14px;
+  }
+  .rubric-option {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 0;
+    padding: 8px 13px;
+    border: 2px solid #E7DDC8;
+    border-radius: 12px;
+    background: #FFFDF8;
+  }
+  .rubric-option-text {
+    color: #373A36;
+    font-size: clamp(18px, 1.45vw, 27px);
+    font-weight: 800;
+    line-height: 1.25;
+  }
+  .rubric-option-score {
+    min-width: 74px;
+    padding: 5px 10px;
+    border-radius: 10px;
+    background: #FFF0C9;
+    color: #A84B23;
+    text-align: center;
+    font-size: clamp(25px, 2vw, 36px);
+    font-weight: 900;
+  }
+  .rubric-final {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 18px;
+  }
+  .rubric-total-card,
+  .rubric-result-card {
+    border: 3px solid #BCD3C3;
+    border-radius: 18px;
+    background: #F7FCF8;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .rubric-total-title,
+  .rubric-result-title {
+    color: var(--c-primary);
+    font-size: clamp(24px, 1.85vw, 32px);
+    font-weight: 900;
+  }
+  .rubric-formula {
+    margin: 22px 0;
+    color: #C94B2C;
+    font-size: clamp(30px, 3vw, 52px);
+    font-weight: 900;
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+  .rubric-write-line {
+    color: #4E554F;
+    font-size: clamp(19px, 1.45vw, 26px);
+    font-weight: 800;
+  }
+  .rubric-bands {
+    display: grid;
+    gap: 11px;
+    margin-top: 14px;
+  }
+  .rubric-band {
+    padding: 10px 14px;
+    border-radius: 11px;
+    font-size: clamp(18px, 1.4vw, 25px);
+    font-weight: 900;
+  }
+  .rubric-band.great { background: #DDF3E4; color: #22673C; }
+  .rubric-band.good { background: #FFF0C9; color: #835A0D; }
+  .rubric-band.adjust { background: #FCE4DB; color: #A33C23; }
+  .rubric-note {
+    margin-top: 16px;
+    color: #5A625B;
+    font-size: clamp(15px, 1.05vw, 19px);
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .rubric-nav {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) 180px;
+    align-items: center;
+    gap: 14px;
+  }
+  .rubric-nav-btn {
+    min-height: 52px;
+    border-radius: 13px;
+    font: 900 clamp(17px, 1.2vw, 21px)/1 var(--font);
+    cursor: pointer;
+  }
+  .rubric-nav-btn.secondary { border: 2px solid #CDBB96; background: #FFF9EC; color: #765B31; }
+  .rubric-nav-btn.primary { border: 2px solid var(--c-primary); background: var(--c-primary); color: #FFFFFF; }
+  .rubric-nav-btn:disabled { opacity: .38; cursor: default; }
+  .rubric-dots { display: flex; justify-content: center; gap: 10px; }
+  .rubric-dot { width: 13px; height: 13px; border-radius: 50%; background: #D5CCB8; }
+  .rubric-dot.active { width: 30px; border-radius: 999px; background: var(--c-primary); }
+
+  @media (max-width: 900px) {
+    .score-guide-card { width: calc(100vw - 16px); height: calc(100vh - 16px); }
+    .score-guide-body { padding: 10px 14px 13px; gap: 8px; }
+    .rubric-card-grid { gap: 9px; }
+    .rubric-card-head { padding: 9px 12px; }
+    .rubric-options { padding: 8px 10px 9px; gap: 5px; }
+    .rubric-option { padding: 5px 9px; gap: 8px; }
+    .rubric-nav { grid-template-columns: 145px minmax(0, 1fr) 145px; }
+  }
+  @media (max-height: 650px) {
+    .score-guide-head { padding-top: 10px; padding-bottom: 8px; }
+    .score-guide-head p { margin-top: 3px; }
+    .score-guide-body { padding-top: 8px; padding-bottom: 10px; gap: 7px; }
+    .rubric-screen-head { font-size: 15px; }
+    .rubric-progress { padding: 5px 10px; font-size: 16px; }
+    .rubric-card-head { padding-top: 7px; padding-bottom: 7px; }
+    .rubric-options { padding-top: 6px; padding-bottom: 7px; }
+    .rubric-option { padding-top: 3px; padding-bottom: 3px; }
+    .rubric-nav-btn { min-height: 42px; }
+  }
+
+  /* 六项同屏：教师无需翻页，学生可按自己的速度查看 */
+  .score-guide-card {
+    width: min(1700px, calc(100vw - 24px));
+    height: min(980px, calc(100vh - 20px));
+  }
+  .rubric-overview-body {
+    padding: 10px 18px 14px;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 9px;
+  }
+  .rubric-overview-head {
+    color: #5D5547;
+    text-align: center;
+    font-size: clamp(17px, 1.18vw, 21px);
+    font-weight: 850;
+  }
+  .rubric-all-grid {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .rubric-all-grid .rubric-card {
+    border-width: 2px;
+    border-radius: 14px;
+  }
+  .rubric-all-grid .rubric-card-head {
+    min-height: 48px;
+    padding: 7px 11px;
+  }
+  .rubric-all-grid .rubric-card-title {
+    font-size: clamp(23px, 1.55vw, 28px);
+  }
+  .rubric-all-grid .rubric-card-max {
+    padding: 4px 9px;
+    font-size: clamp(17px, 1.05vw, 20px);
+  }
+  .rubric-all-grid .rubric-example {
+    min-height: 50px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    font-size: clamp(16px, 1.02vw, 18px);
+    line-height: 1.25;
+  }
+  .rubric-all-grid .rubric-options {
+    padding: 6px 9px 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 5px;
+  }
+  .rubric-all-grid .rubric-option {
+    min-height: 40px;
+    padding: 4px 8px;
+    gap: 8px;
+    border-width: 1px;
+    border-radius: 9px;
+  }
+  .rubric-all-grid .rubric-option-text {
+    font-size: clamp(18px, 1.18vw, 21px);
+    line-height: 1.18;
+  }
+  .rubric-all-grid .rubric-option-score {
+    min-width: 59px;
+    padding: 2px 7px;
+    font-size: clamp(26px, 1.65vw, 30px);
+  }
+  .rubric-summary-bar {
+    min-height: 62px;
+    display: grid;
+    grid-template-columns: minmax(380px, .9fr) minmax(0, 1.6fr);
+    align-items: center;
+    gap: 12px;
+    padding: 7px 11px;
+    border: 2px solid #BCD3C3;
+    border-radius: 12px;
+    background: #F7FCF8;
+  }
+  .rubric-summary-total {
+    color: #C94B2C;
+    font-size: clamp(21px, 1.42vw, 27px);
+    font-weight: 900;
+    white-space: nowrap;
+  }
+  .rubric-summary-bands {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .rubric-summary-bands span {
+    padding: 7px 8px;
+    border-radius: 9px;
+    text-align: center;
+    font-size: clamp(16px, 1.03vw, 19px);
+    font-weight: 900;
+    white-space: nowrap;
+  }
+  .rubric-summary-bands .great { background: #DDF3E4; color: #22673C; }
+  .rubric-summary-bands .good { background: #FFF0C9; color: #835A0D; }
+  .rubric-summary-bands .adjust { background: #FCE4DB; color: #A33C23; }
+</style>
+
 </head>
 <body>
 
@@ -1259,11 +1966,14 @@
       🥘 午餐食材库
       <small>找出适合运动日午餐的食材</small>
     </div>
-    <div class="filter-bar" id="filterBar">
-      <button class="filter-btn active" data-filter="staple">主食</button>
-      <button class="filter-btn" data-filter="protein">肉豆</button>
-      <button class="filter-btn" data-filter="veggie">蔬果</button>
-      <button class="filter-btn" data-filter="drink">饮品</button>
+    <div class="pool-controls">
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-filter="staple">主食</button>
+        <button class="filter-btn" data-filter="protein">肉豆</button>
+        <button class="filter-btn" data-filter="veggie">蔬果</button>
+        <button class="filter-btn" data-filter="drink">饮品</button>
+      </div>
+      <button class="score-guide-btn" id="scoreGuideBtn" type="button" aria-haspopup="dialog" aria-controls="scoreGuideModal">📊 开始全班自评</button>
     </div>
     <div class="pool-grid" id="poolGrid"></div>
   </div>
@@ -1282,9 +1992,32 @@
     </div>
     <div class="action-buttons">
       <button class="btn btn-secondary" id="resetBtn">🔄 重新搭配</button>
-      <button class="btn btn-primary" id="submitBtn">✅ 完成配餐</button>
+      <button class="btn btn-secondary" id="submitBtn">🖥️ 电脑核对</button>
     </div>
   </div>
+</div>
+
+<!-- 投屏评分页：六项同屏展示，学生按自己的速度在纸质表格上圈分 -->
+<div class="score-guide-modal" id="scoreGuideModal" aria-hidden="true">
+  <section class="score-guide-card" role="dialog" aria-modal="true" aria-labelledby="scoreGuideTitle" tabindex="-1">
+    <header class="score-guide-head">
+      <h2 id="scoreGuideTitle">📊 运动日健康午餐自评标准</h2>
+      <p>六项标准同屏展示 · 学生在纸质记录表上圈分</p>
+      <button class="score-guide-close" id="scoreGuideClose" type="button" aria-label="关闭评分标准">×</button>
+    </header>
+    <div class="score-guide-body rubric-overview-body">
+      <div class="rubric-overview-head">请在纸上找到相同字母，按自己的搭配圈出 A—F 六项分数</div>
+      <div class="rubric-all-grid" id="rubricAll" aria-live="polite"></div>
+      <div class="rubric-summary-bar">
+        <div class="rubric-summary-total">总分：A＋B＋C＋D＋E＋F＝______ / 100</div>
+        <div class="rubric-summary-bands">
+          <span class="great">90～100　结构较完整</span>
+          <span class="good">70～89　基本合理</span>
+          <span class="adjust">0～69　继续调整</span>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- 结果弹窗 -->
@@ -1782,14 +2515,27 @@ const RISK_META = {
   cake: ['奶油甜点', 5], canned: ['糖水罐头', 5], braisedpork: ['高油菜品', 5]
 };
 
+/* 网站结果、大屏评分页和纸质表共用同一套六项100分规则 */
+const SCORE_RULES = Object.freeze({
+  staple: Object.freeze({ max: 20, whole: 20, healthy: 15, none: 0 }),
+  protein: Object.freeze({ max: 20, twoSources: 20, oneSource: 15, none: 0 }),
+  produce: Object.freeze({ max: 20, rich: 20, vegetable: 15, fruitOnly: 5, none: 0 }),
+  drink: Object.freeze({ max: 15, water: 15, unsweetened: 10, none: 0 }),
+  light: Object.freeze({ max: 15, none: 15, oneRisk: 8, manyRisks: 0 }),
+  diversity: Object.freeze({ max: 10, fivePlus: 10, threeToFour: 5, oneToTwo: 0 })
+});
+
 const gameState = { selected: [], filter: 'staple' };
 const q = selector => document.querySelector(selector);
 const qa = selector => Array.from(document.querySelectorAll(selector));
 const view = {
+  gameRoot: q('.game'),
   poolGrid: q('#poolGrid'), filterBar: q('#filterBar'), selectedList: q('#selectedList'), selectedCount: q('#selectedCount'),
   modal: q('#modal'), mIcon: q('#mIcon'), mTitle: q('#mTitle'), mSubtitle: q('#mSubtitle'), mScore: q('#mScore'),
   mDetails: q('#mDetails'), mTip: q('#mTip'), toast: q('#toast'), resetBtn: q('#resetBtn'), submitBtn: q('#submitBtn'),
-  mReset: q('#mReset'), mClose: q('#mClose')
+  mReset: q('#mReset'), mClose: q('#mClose'),
+  scoreGuideBtn: q('#scoreGuideBtn'), scoreGuideModal: q('#scoreGuideModal'), scoreGuideClose: q('#scoreGuideClose'),
+  rubricAll: q('#rubricAll')
 };
 
 let freeAudio = null;
@@ -1889,7 +2635,9 @@ view.filterBar.addEventListener('click', event => {
 });
 
 function diversityScore(count) {
-  return [0, 2, 4, 7, 10, 13, 15][Math.min(count, 6)];
+  if (count >= 5) return SCORE_RULES.diversity.fivePlus;
+  if (count >= 3) return SCORE_RULES.diversity.threeToFour;
+  return SCORE_RULES.diversity.oneToTwo;
 }
 function resultClass(score, max) {
   if (score === max) return 'pass';
@@ -1899,56 +2647,39 @@ function resultClass(score, max) {
 function evaluateMeal() {
   const selected = selectedFoods();
   const ids = new Set(gameState.selected);
+  const rules = SCORE_RULES;
   const staples = selected.filter(food => food.cat === 'staple');
   const healthyStaples = staples.filter(food => food.healthy);
   const hasWholeStaple = healthyStaples.some(food => SETS.wholeStaple.has(food.id));
-  const sStaple = hasWholeStaple ? 18 : healthyStaples.length ? 12 : staples.length ? 6 : 0;
+  const sStaple = hasWholeStaple ? rules.staple.whole : healthyStaples.length ? rules.staple.healthy : rules.staple.none;
 
   const proteinSources = new Set();
   if (selected.some(food => SETS.animalProtein.has(food.id))) proteinSources.add('animal');
   if (selected.some(food => SETS.plantProtein.has(food.id))) proteinSources.add('plant');
   if (selected.some(food => SETS.dairyProtein.has(food.id))) proteinSources.add('dairy');
-  const anyProteinCard = selected.some(food => food.cat === 'protein') || ids.has('milk') || ids.has('soymilk');
-  const sProtein = proteinSources.size >= 2 ? 18 : proteinSources.size === 1 ? 12 : anyProteinCard ? 6 : 0;
+  const sProtein = proteinSources.size >= 2 ? rules.protein.twoSources : proteinSources.size === 1 ? rules.protein.oneSource : rules.protein.none;
 
   const vegetables = selected.filter(food => food.healthy && SETS.vegetable.has(food.id));
   const fruits = selected.filter(food => food.healthy && SETS.fruit.has(food.id));
-  const sProduce = (vegetables.length ? 14 : 0) + (fruits.length ? 6 : 0) + (vegetables.length >= 2 ? 4 : 0);
+  let sProduce = rules.produce.none;
+  if (vegetables.length >= 2 || (vegetables.length >= 1 && fruits.length >= 1)) sProduce = rules.produce.rich;
+  else if (vegetables.length >= 1) sProduce = rules.produce.vegetable;
+  else if (fruits.length >= 1) sProduce = rules.produce.fruitOnly;
 
-  let sDrink = 0;
-  if (ids.has('water')) sDrink = 10;
-  else if (ids.has('lemonwater')) sDrink = 8;
-  else if (ids.has('milk') || ids.has('soymilk')) sDrink = 6;
-  else if (ids.has('qingcha') || ids.has('lingzhi') || ids.has('barleytea')) sDrink = 4;
+  const otherUnsweetenedDrinks = new Set(['lemonwater','milk','soymilk','qingcha','lingzhi','barleytea']);
+  let sDrink = rules.drink.none;
+  if (ids.has('water')) sDrink = rules.drink.water;
+  else if ([...ids].some(id => otherUnsweetenedDrinks.has(id))) sDrink = rules.drink.unsweetened;
 
   const risks = selected.filter(food => RISK_META[food.id]).map(food => ({
     food, label: RISK_META[food.id][0], deduction: RISK_META[food.id][1]
   }));
-  const riskDeduction = risks.reduce((sum, risk) => sum + risk.deduction, 0);
-  const sLight = selected.length ? Math.max(0, 15 - riskDeduction) : 0;
+  const sLight = !selected.length ? 0 : risks.length === 0 ? rules.light.none : risks.length === 1 ? rules.light.oneRisk : rules.light.manyRisks;
 
   const diverseFoods = selected.filter(food => food.healthy && !SETS.noDiversity.has(food.id));
   const sDiversity = diversityScore(diverseFoods.length);
 
-  const rawScore = sStaple + sProtein + sProduce + sDrink + sLight + sDiversity;
-  let scoreCap = 100;
-  const capReasons = [];
-  if (!healthyStaples.length || !proteinSources.size || !vegetables.length) {
-    scoreCap = Math.min(scoreCap, 74);
-    capReasons.push('主食、优质蛋白或蔬菜尚未配齐');
-  }
-  if (![...ids].some(id => SETS.usefulDrink.has(id))) {
-    scoreCap = Math.min(scoreCap, 89);
-    capReasons.push('没有选择合适饮品');
-  }
-  if (risks.length >= 3) {
-    scoreCap = Math.min(scoreCap, 59);
-    capReasons.push('选择了3项及以上限制类食品');
-  } else if (risks.length >= 2) {
-    scoreCap = Math.min(scoreCap, 79);
-    capReasons.push('选择了2项限制类食品');
-  }
-  const score = Math.max(0, Math.min(100, rawScore, scoreCap));
+  const score = Math.max(0, Math.min(100, sStaple + sProtein + sProduce + sDrink + sLight + sDiversity));
   const localCount = selected.filter(food => food.wuping).length;
 
   const suggestions = [];
@@ -1958,12 +2689,12 @@ function evaluateMeal() {
   if (!vegetables.length) suggestions.push('至少加入一种新鲜蔬菜，水果不能代替蔬菜。');
   else if (vegetables.length < 2) suggestions.push('再搭配一种不同的蔬菜，颜色和种类更丰富。');
   if (!fruits.length) suggestions.push('可在午餐或加餐加入一份完整水果，不用果汁替代。');
-  if (!ids.has('water')) suggestions.push('运动补水首选白开水，奶或豆浆不能完全代替饮水。');
+  if (!ids.has('water')) suggestions.push('运动补水首选白开水，其他无糖饮品不能完全代替饮水。');
   if (risks.length) suggestions.push(`减少${risks.slice(0, 3).map(risk => risk.food.name).join('、')}等高油、高盐或高糖食品。`);
   if (diverseFoods.length < 5) suggestions.push('午餐可逐步丰富到5～6种天然或少加工食材，但不必硬凑数量。');
 
   return {
-    selected, score, scoreCap, capReasons, risks, riskDeduction, localCount, diverseCount: diverseFoods.length,
+    selected, score, risks, localCount, diverseCount: diverseFoods.length,
     proteinSourceCount: proteinSources.size, vegetableCount: vegetables.length, fruitCount: fruits.length,
     healthyStapleCount: healthyStaples.length, hasWholeStaple,
     scores: { staple: sStaple, protein: sProtein, produce: sProduce, drink: sDrink, light: sLight, diversity: sDiversity },
@@ -1974,32 +2705,81 @@ function evaluateMeal() {
 function showMealResult() {
   const result = evaluateMeal();
   const s = result.scores;
-  let icon = '🌱', title = '继续调整搭配', subtitle = '先补齐关键类别，再看看油盐糖和饮水。';
-  if (result.score >= 90) { icon = '🏆'; title = '搭配结构很均衡！'; subtitle = '主食、蛋白、蔬果和饮水照顾得很全面。'; }
-  else if (result.score >= 75) { icon = '🌟'; title = '基本均衡！'; subtitle = '整体方向很好，还有一处可以优化。'; }
-  else if (result.score >= 60) { icon = '🍀'; title = '已经有亮点！'; subtitle = '再补齐一个关键类别会更适合运动日。'; }
+  const rules = SCORE_RULES;
+  let icon = '🌱', title = '继续调整搭配', subtitle = '对照六项标准，再修改自己的午餐。';
+  if (result.score >= 90) { icon = '🏆'; title = '搭配结构较完整！'; subtitle = '主食、蛋白、蔬果、饮水和健康选择都照顾到了。'; }
+  else if (result.score >= 70) { icon = '🌟'; title = '搭配基本合理！'; subtitle = '整体方向正确，再根据建议调整一处。'; }
 
-  const riskText = result.risks.length
-    ? `${result.risks.map(risk => `${risk.food.name} −${risk.deduction}`).join('，')}`
-    : '未发现明显高油、高盐或高糖项目';
-  const capText = result.scoreCap < 100 ? `；本次最高分限制：${result.scoreCap}分` : '';
+  const riskText = result.risks.length ? `限制类食品 ${result.risks.length} 项` : '无限制类食品';
   view.mIcon.textContent = icon;
   view.mTitle.textContent = title;
-  view.mSubtitle.textContent = `${subtitle} 本餐选择 ${result.selected.length} 项，其中武平食材 ${result.localCount} 项。`;
+  view.mSubtitle.textContent = `电脑核对：${subtitle} 本餐选择 ${result.selected.length} 项，其中武平食材 ${result.localCount} 项。请以纸上自评和课堂讨论为主。`;
   view.mScore.textContent = result.score;
   view.mDetails.innerHTML = `
-    <div class="modal-detail-item ${resultClass(s.staple,18)}"><span class="dot">${s.staple === 18 ? '✓' : '•'}</span><span>主食与运动能量：${s.staple}/18</span></div>
-    <div class="modal-detail-item ${resultClass(s.protein,18)}"><span class="dot">${s.protein === 18 ? '✓' : '•'}</span><span>优质蛋白来源：${s.protein}/18</span></div>
-    <div class="modal-detail-item ${resultClass(s.produce,24)}"><span class="dot">${s.produce === 24 ? '✓' : '•'}</span><span>蔬菜和完整水果：${s.produce}/24</span></div>
-    <div class="modal-detail-item ${resultClass(s.drink,10)}"><span class="dot">${s.drink === 10 ? '✓' : '•'}</span><span>健康饮水：${s.drink}/10（白水优先）</span></div>
-    <div class="modal-detail-item ${resultClass(s.light,15)}"><span class="dot">${s.light === 15 ? '✓' : '•'}</span><span>清淡与少加工：${s.light}/15 · ${riskText}${capText}</span></div>
-    <div class="modal-detail-item ${resultClass(s.diversity,15)}"><span class="dot">${s.diversity === 15 ? '✓' : '•'}</span><span>天然食材多样性：${s.diversity}/15（计入 ${result.diverseCount} 项）</span></div>
+    <div class="modal-detail-item ${resultClass(s.staple,rules.staple.max)}"><span class="dot">${s.staple === rules.staple.max ? '✓' : '•'}</span><span>A 健康主食：${s.staple}/${rules.staple.max}</span></div>
+    <div class="modal-detail-item ${resultClass(s.protein,rules.protein.max)}"><span class="dot">${s.protein === rules.protein.max ? '✓' : '•'}</span><span>B 优质蛋白：${s.protein}/${rules.protein.max}</span></div>
+    <div class="modal-detail-item ${resultClass(s.produce,rules.produce.max)}"><span class="dot">${s.produce === rules.produce.max ? '✓' : '•'}</span><span>C 蔬菜水果：${s.produce}/${rules.produce.max}</span></div>
+    <div class="modal-detail-item ${resultClass(s.drink,rules.drink.max)}"><span class="dot">${s.drink === rules.drink.max ? '✓' : '•'}</span><span>D 运动饮水：${s.drink}/${rules.drink.max}（白水优先）</span></div>
+    <div class="modal-detail-item ${resultClass(s.light,rules.light.max)}"><span class="dot">${s.light === rules.light.max ? '✓' : '•'}</span><span>E 少油盐糖：${s.light}/${rules.light.max} · ${riskText}</span></div>
+    <div class="modal-detail-item ${resultClass(s.diversity,rules.diversity.max)}"><span class="dot">${s.diversity === rules.diversity.max ? '✓' : '•'}</span><span>F 食材丰富：${s.diversity}/${rules.diversity.max}（健康食材 ${result.diverseCount} 种）</span></div>
   `;
   const actions = result.suggestions.length ? result.suggestions.map(text => `• ${text}`).join('<br>') : '• 继续保持这样的搭配思路。';
   view.mTip.innerHTML = `<b>改进建议</b><br>${actions}<div class="score-note">📚 每天不少于12种、每周不少于25种，是全天和全周累计目标，不要求这一顿午餐凑满12种。</div>`;
   view.modal.classList.add('show');
-  freeBeep(result.score >= 75 ? 880 : 520, .14);
+  freeBeep(result.score >= 70 ? 880 : 520, .14);
   if (result.score >= 90) freeConfetti();
+}
+
+const RUBRIC_RULES = Object.freeze([
+  { code:'A', icon:'🍚', title:'健康主食', max:20, note:'计入米饭、米粉、杂粮、玉米、薯类；油条、薯条、方便面、蛋糕不计。', options:[['含杂粮、全谷或薯类',20],['普通健康主食',15],['没有健康主食',0]] },
+  { code:'B', icon:'🥚', title:'优质蛋白', max:20, note:'动物类、豆类、奶类分别算1类；炸鸡、香肠、腊肉不计。鱼肉蛋合算动物类。', options:[['动物类、豆类、奶类中有两类及以上',20],['只有其中一类',15],['没有优质蛋白',0]] },
+  { code:'C', icon:'🥦', title:'蔬菜水果', max:20, note:'计入蔬菜、菌菇、笋干、完整水果；泡菜咸菜、炸蔬菜、糖水罐头不计。', options:[['两种蔬菜类，或蔬菜类搭配完整水果',20],['有一种计入范围的蔬菜类',15],['只有完整水果',5],['蔬菜类和完整水果都没有',0]] },
+  { code:'D', icon:'💧', title:'运动饮水', max:15, note:'白水15分；无糖茶、纯奶、无糖豆浆10分；含糖饮料0分。', options:[['有白开水',15],['只有其他无糖饮品',10],['没有合适饮品，或只有含糖饮料',0]] },
+  { code:'E', icon:'🧂', title:'少油盐糖', max:15, note:'限制类：油炸、方便面、腊肉香肠、泡菜咸菜、含糖饮料、奶茶甜点等。', options:[['没有限制类食品',15],['有1项限制类食品',8],['有2项及以上限制类食品',0]] },
+  { code:'F', icon:'🌈', title:'食材丰富', max:10, note:'只数健康食材；白水、茶、灵芝水、无糖柠檬水/大麦茶及限制类不计。', options:[['健康食材5种及以上',10],['健康食材3～4种',5],['健康食材0～2种',0]] }
+]);
+function rubricCardHtml(rule) {
+  return `
+    <article class="rubric-card">
+      <div class="rubric-card-head">
+        <div class="rubric-card-title">${rule.code}　${rule.icon} ${rule.title}</div>
+        <div class="rubric-card-max">满分 ${rule.max}</div>
+      </div>
+      <div class="rubric-example">🔎 ${rule.note}</div>
+      <div class="rubric-options">
+        ${rule.options.map(([text, score]) => `<div class="rubric-option"><span class="rubric-option-text">${text}</span><span class="rubric-option-score">${score}分</span></div>`).join('')}
+      </div>
+    </article>`;
+}
+
+function renderScoreGuide() {
+  view.rubricAll.innerHTML = RUBRIC_RULES.map(rubricCardHtml).join('');
+}
+
+let scoreGuideReturnFocus = null;
+function openScoreGuide() {
+  renderScoreGuide();
+  scoreGuideReturnFocus = document.activeElement;
+  view.gameRoot.inert = true;
+  view.modal.inert = true;
+  view.scoreGuideModal.classList.add('show');
+  view.scoreGuideModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('score-guide-open');
+  view.scoreGuideClose.focus();
+}
+function closeScoreGuide() {
+  view.scoreGuideModal.classList.remove('show');
+  view.scoreGuideModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('score-guide-open');
+  view.gameRoot.inert = false;
+  view.modal.inert = false;
+  if (scoreGuideReturnFocus && typeof scoreGuideReturnFocus.focus === 'function') scoreGuideReturnFocus.focus();
+}
+
+function keepScoreGuideFocus(event) {
+  if (event.key !== 'Tab' || !view.scoreGuideModal.classList.contains('show')) return;
+  event.preventDefault();
+  view.scoreGuideClose.focus();
 }
 
 function resetMeal() {
@@ -2013,6 +2793,13 @@ view.submitBtn.addEventListener('click', showMealResult);
 view.resetBtn.addEventListener('click', resetMeal);
 view.mReset.addEventListener('click', () => { view.modal.classList.remove('show'); resetMeal(); });
 view.mClose.addEventListener('click', () => view.modal.classList.remove('show'));
+view.scoreGuideBtn.addEventListener('click', openScoreGuide);
+view.scoreGuideClose.addEventListener('click', closeScoreGuide);
+view.scoreGuideModal.addEventListener('click', event => { if (event.target === view.scoreGuideModal) closeScoreGuide(); });
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && view.scoreGuideModal.classList.contains('show')) closeScoreGuide();
+  keepScoreGuideFocus(event);
+});
 
 renderFoodPool();
 renderSelectedFoods();

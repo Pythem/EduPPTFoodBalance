@@ -2713,7 +2713,7 @@ function showMealResult() {
   const riskText = result.risks.length ? `限制类食品 ${result.risks.length} 项` : '无限制类食品';
   view.mIcon.textContent = icon;
   view.mTitle.textContent = title;
-  view.mSubtitle.textContent = `电脑核对：${subtitle} 本餐选择 ${result.selected.length} 项，其中武平食材 ${result.localCount} 项。请以纸上自评和课堂讨论为主。`;
+  view.mSubtitle.textContent = `电脑核对：${subtitle} 本餐选择 ${result.selected.length} 项，其中武平食材 ${result.localCount} 项。`;
   view.mScore.textContent = result.score;
   view.mDetails.innerHTML = `
     <div class="modal-detail-item ${resultClass(s.staple,rules.staple.max)}"><span class="dot">${s.staple === rules.staple.max ? '✓' : '•'}</span><span>A 健康主食：${s.staple}/${rules.staple.max}</span></div>
